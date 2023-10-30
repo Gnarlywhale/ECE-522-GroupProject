@@ -7,6 +7,7 @@ enum NodeColor {
 }
 type Tree = Rc<RefCell<TreeNode<u32>>>;
 type RedBlackTree = Option<Tree>;
+#[derive(Debug)]
 struct TreeNode<T> {
     pub color: NodeColor,
     pub key: T,
@@ -15,6 +16,20 @@ struct TreeNode<T> {
     right: RedBlackTree,
 }
 
+impl <T: Ord> TreeNode<T>{
+    fn new(data:T)-> Self {
+        Self {
+            color: NodeColor::Black,
+            key: data,
+            parent: None,
+            left: None,
+            right: None,
+        }
+    }
+
+        //self.fix_insert(node);
+    
+}
 // TO IMPLEMENT
 // 1- Insert a node to the red-black tree.
 // 2- Delete a node from the red-black tree.
@@ -26,4 +41,6 @@ struct TreeNode<T> {
 // sufficient)
 fn main() {
     println!("Hello, world!");
+    let tn = TreeNode::new(3);
+    println!("{:?}",tn);
 }
