@@ -19,15 +19,13 @@ struct TreeNode<T> {
 impl <T: Ord> TreeNode<T>{
     fn new(data:T)-> Self {
         Self {
-            color: NodeColor::Black,
+            color: NodeColor::Red,
             key: data,
             parent: None,
             left: None,
             right: None,
         }
     }
-
-        //self.fix_insert(node);
     
 }
 // TO IMPLEMENT
