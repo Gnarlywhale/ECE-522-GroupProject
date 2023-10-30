@@ -15,6 +15,15 @@ struct TreeNode<T> {
     right: RedBlackTree,
 }
 
+// TO IMPLEMENT
+// 1- Insert a node to the red-black tree.
+// 2- Delete a node from the red-black tree.
+// 3- Count the number of leaves in a tree.
+// 4- Return the height of a tree.
+// 5- Print In-order traversal of the tree.  -> Starting from root, then all lefts  
+// 6- Check if the tree is empty.
+// 7- Print the tree showing its colors and structure. (Using println!(“{:#?}”,tree); is NOT
+// sufficient)
 fn main() {
     println!("Hello, world!");
 }
