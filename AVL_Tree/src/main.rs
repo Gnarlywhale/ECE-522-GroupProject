@@ -1,7 +1,8 @@
 use std::cell::RefCell;
 use std::rc::Rc;
-#[derive(Clone, Debug, PartialEq)]
+use binary_lib::*;
 
+// #[derive(Clone, Debug, PartialEq)]
 type Tree = Rc<RefCell<TreeNode<u32>>>;
 type AVLTree = Option<Tree>;
 #[derive(Debug)]
@@ -16,7 +17,7 @@ struct TreeNode<T> {
 impl <T: Ord> TreeNode<T>{
     fn new(data:T)-> Self {
         Self {
-            Height: 0,
+            height: 0,
             key: data,
             parent: None,
             left: None,
@@ -27,5 +28,5 @@ impl <T: Ord> TreeNode<T>{
 }
 
 fn main() {
-    println!("Hello, world!");
+    test_function()
 }
