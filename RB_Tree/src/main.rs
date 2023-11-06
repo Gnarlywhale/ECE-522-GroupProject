@@ -1,12 +1,15 @@
 use std::cell::RefCell;
 use std::rc::Rc;
+
 #[derive(Clone, Debug, PartialEq)]
 enum NodeColor {
     Red,
     Black,
 }
+
 type Tree = Rc<RefCell<TreeNode<u32>>>;
 type RedBlackTree = Option<Tree>;
+
 #[derive(Debug)]
 struct TreeNode<T> {
     pub color: NodeColor,
@@ -26,8 +29,51 @@ impl <T: Ord> TreeNode<T>{
             right: None,
         }
     }
-    
 }
+
+// I think going with a struct-based implementation is a better way to go,
+// But seems a bit weird since we have the RB tree defined as a foreign type, TO DISCUSS
+// pub struct RBTree {
+//     root: RedBlackTree
+// }
+// impl RBTree {
+//     pub fn new() -> Self {
+//         RBTree { root: None } 
+//     }
+
+//     pub fn insert_node(&mut self, data:T){
+        
+//     }
+// }
+
+fn new_rb_tree(data: u32) -> RedBlackTree {
+    Some(Rc::new(RefCell::new(TreeNode::new(data))))
+}
+
+fn insert_node(rb_tree:RedBlackTree, data: u32) -> RedBlackTree{
+    if let Some(node) = rb_tree {
+        if data < node.borrow().key {
+            let left = node.borrow_mut().left.take();
+            let new_left = insert_node(left, data);
+            node.borrow_mut().left = new_left;
+            if let Some(left_node) = &node.borrow().left {
+                left_node.borrow_mut().parent = Some(node.clone());
+            }
+        } else {
+            let right = node.borrow_mut().right.take();
+            let new_right = insert_node(right, data);
+            node.borrow_mut().right = new_right;
+            if let Some(right_node) = &node.borrow().right {
+                right_node.borrow_mut().parent = Some(node.clone());
+            }
+        }
+        Some(node)
+    } else {
+        new_rb_tree(data)
+    }
+}
+
+
 // TO IMPLEMENT
 // 1- Insert a node to the red-black tree.
 // 2- Delete a node from the red-black tree.
@@ -38,7 +84,37 @@ impl <T: Ord> TreeNode<T>{
 // 7- Print the tree showing its colors and structure. (Using println!(“{:#?}”,tree); is NOT
 // sufficient)
 fn main() {
-    println!("Hello, world!");
-    let tn = TreeNode::new(3);
-    println!("{:?}",tn);
+    let mut rb_tree = new_rb_tree(42);
+    rb_tree = insert_node(rb_tree, 3);
+    rb_tree = insert_node(rb_tree, 50);
+
+    println!("{:?}",rb_tree.clone().unwrap().borrow().key);
+    println!("{:?}",rb_tree.clone().unwrap().borrow().right.clone().unwrap().borrow().key);
+    println!("{:?}",rb_tree.unwrap().borrow().left.clone().unwrap().borrow().key);
+    
 }
+
+// impl <T: Ord> TreeNode<T>{
+    // fn new(data:T)-> Self {
+    // fn new(data:T, node_parent:Option<TreeNode<u32>>)-> Self {
+        // if let Some(np) = node_parent{
+        //     Self {
+        //         color: NodeColor::Red,
+        //         key: data,
+        //         parent: Some(Rc::new(RefCell::new(node_parent.unwrap()))),
+        //         left: None,
+        //         right: None,
+        //     }
+        // } else {
+    //         Self {
+    //             color: NodeColor::Red,
+    //             key: data,
+    //             parent: None,
+    //             left: None,
+    //             right: None,
+    //         }
+        // }
+
+    // } 
+// }
+
