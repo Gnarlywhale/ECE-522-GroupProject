@@ -61,10 +61,10 @@ fn find_key(rb_tree:RedBlackTree, key: u32) -> Option<Rc<RefCell<TreeNode<u32>>>
             return Some(node)
         } else if key < node.borrow_mut().key {
             let left = node.borrow_mut().left.take();
-            return find_key(left, key); // Added return statement here
+            return find_key(left, key);
         } else {
             let right = node.borrow_mut().right.take();
-            return find_key(right, key); // Added return statement here
+            return find_key(right, key);
         }
     }
     None
