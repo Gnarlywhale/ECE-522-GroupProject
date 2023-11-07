@@ -106,6 +106,53 @@ fn get_child(opt_node:RedBlackTree,direction:Direction) -> RedBlackTree {
     None
 }
 
+fn left_rotate(y: RedBlackTree) -> Result<RedBlackTree, ()>{
+    let node_y = y.clone();
+    if let Some(y_node) = y{
+        let z = y_node.borrow_mut().parent.take();
+        let x = y_node.borrow_mut().right.take();
+        y_node.borrow_mut().parent= x.clone();
+        if let Some(x_node) = x{
+            let child = x_node.borrow_mut().left.take();
+            x_node.borrow_mut().parent = z.clone();
+            x_node.borrow_mut().left = node_y.clone();
+            y_node.borrow_mut().right = child.clone();
+            if let Some(child_node) = child{
+                child_node.borrow_mut().parent = node_y.clone();
+            }
+            Ok(Some(x_node))
+        }
+        else{
+            Err(())
+        }
+    }else{
+        Err(())
+    }
+}
+
+fn right_rotate(y: RedBlackTree) -> Result<RedBlackTree, ()>{
+    let node_y = y.clone();
+    if let Some(y_node) = y{
+        let z = y_node.borrow_mut().parent.take();
+        let x = y_node.borrow_mut().left.take();
+        y_node.borrow_mut().parent= x.clone();
+        if let Some(x_node) = x{
+            let child = x_node.borrow_mut().right.take();
+            x_node.borrow_mut().parent = z.clone();
+            x_node.borrow_mut().right = node_y.clone();
+            y_node.borrow_mut().left = child.clone();
+            if let Some(child_node) = child{
+                child_node.borrow_mut().parent = node_y.clone();
+            }
+            Ok(Some(x_node))
+        }
+        else{
+            Err(())
+        }
+    }else{
+        Err(())
+    }
+}
 
 // TO IMPLEMENT
 // 1- Insert a node to the red-black tree.
@@ -121,12 +168,14 @@ fn main() {
     rb_tree = insert_node(rb_tree, 3);
     rb_tree = insert_node(rb_tree, 50);
     rb_tree = insert_node(rb_tree, 45);
-
+    rb_tree = insert_node(rb_tree, 55);
+    rb_tree = left_rotate(rb_tree).unwrap();
     println!("{:?}",rb_tree.clone().unwrap().borrow().key);
     println!("{:?}", get_child(rb_tree.clone(),Direction::Right).unwrap().borrow().key);
+    println!("{:?}", get_child(rb_tree.clone(),Direction::Left).unwrap().borrow().key);
     println!("{:?}",rb_tree.clone().unwrap().borrow().right.clone().unwrap().borrow().key);
     println!("{:?}",rb_tree.clone().unwrap().borrow().left.clone().unwrap().borrow().key);
-    println!("{:?}",get_child(get_child(rb_tree.clone(),Direction::Right),Direction::Left).unwrap().borrow().key);
+    println!("{:?}",get_child(get_child(rb_tree.clone(),Direction::Left),Direction::Right).unwrap().borrow().key);
 
     let val = find_key(rb_tree, 50);
     println!("{:?}", val.unwrap().borrow().key);
