@@ -15,8 +15,7 @@ enum Direction {
 type Tree = Rc<RefCell<TreeNode<u32>>>;
 type RedBlackTree = Option<Tree>;
 
-#[derive(Debug)]
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 struct TreeNode<T> {
     pub color: NodeColor,
     pub key: T,
