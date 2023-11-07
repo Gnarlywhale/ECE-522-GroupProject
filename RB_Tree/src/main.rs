@@ -8,6 +8,10 @@ enum NodeColor {
     Black,
 }
 
+enum Direction {
+    Right,
+    Left,
+}
 type Tree = Rc<RefCell<TreeNode<u32>>>;
 type RedBlackTree = Option<Tree>;
 
@@ -51,8 +55,26 @@ fn new_rb_tree(data: u32) -> RedBlackTree {
     Some(Rc::new(RefCell::new(TreeNode::new(data))))
 }
 
+fn find_key(rb_tree:RedBlackTree, key: u32) -> Option<Rc<RefCell<TreeNode<u32>>>>{
+    if let Some(node) = rb_tree {
+        if key == node.borrow_mut().key {
+            return Some(node)
+        } else if key < node.borrow_mut().key {
+            let left = node.borrow_mut().left.take();
+            return find_key(left, key);
+        } else {
+            let right = node.borrow_mut().right.take();
+            return find_key(right, key);
+        }
+    }
+    None
+}
+
 fn insert_node(rb_tree:RedBlackTree, data: u32) -> RedBlackTree{
     if let Some(node) = rb_tree {
+        if data == node.borrow().key{
+            return None
+        }
         if data < node.borrow().key {
             let left = node.borrow_mut().left.take();
             let new_left = insert_node(left, data);
@@ -74,6 +96,16 @@ fn insert_node(rb_tree:RedBlackTree, data: u32) -> RedBlackTree{
     }
 }
 
+fn get_child(opt_node:RedBlackTree,direction:Direction) -> RedBlackTree {
+    if let Some(node) = opt_node {
+        match direction {
+            Direction::Right => return node.borrow().right.clone(),
+            Direction::Left => return node.borrow().left.clone(),
+        }
+    }
+    None
+}
+
 
 // TO IMPLEMENT
 // 1- Insert a node to the red-black tree.
@@ -88,10 +120,22 @@ fn main() {
     let mut rb_tree = new_rb_tree(42);
     rb_tree = insert_node(rb_tree, 3);
     rb_tree = insert_node(rb_tree, 50);
+    rb_tree = insert_node(rb_tree, 45);
 
     println!("{:?}",rb_tree.clone().unwrap().borrow().key);
+    println!("{:?}", get_child(rb_tree.clone(),Direction::Right).unwrap().borrow().key);
     println!("{:?}",rb_tree.clone().unwrap().borrow().right.clone().unwrap().borrow().key);
-    println!("{:?}",rb_tree.unwrap().borrow().left.clone().unwrap().borrow().key);
+    println!("{:?}",rb_tree.clone().unwrap().borrow().left.clone().unwrap().borrow().key);
+    println!("{:?}",get_child(get_child(rb_tree.clone(),Direction::Right),Direction::Left).unwrap().borrow().key);
+
+    let val = find_key(rb_tree, 50);
+    println!("{:?}", val.unwrap().borrow().key);
+    // if let Some(v) = val {
+    //     println!("Yay")
+    // } else {
+    //     println!("Boo")
+    // }
+    // println!("{:?}", f.clone().unwrap().borrow().key)
     
 }
 
