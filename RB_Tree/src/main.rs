@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 use std::rc::Rc;
+use binary_lib::*;
 
 #[derive(Clone, Debug, PartialEq)]
 enum NodeColor {
