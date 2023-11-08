@@ -148,8 +148,8 @@ fn right_rotate(y: RedBlackTree) -> Result<RedBlackTree, ()> {
         if let Some(x_node) = x {
             let child = x_node.borrow_mut().right.take();
             x_node.borrow_mut().parent = z.clone();
-            x_node.borrow_mut().right = Some(y_node.clone());
             y_node.borrow_mut().left = child.clone();
+            x_node.borrow_mut().right = Some(y_node.clone());
             if let Some(child_node) = child {
                 child_node.borrow_mut().parent = Some(y_node);
             }
