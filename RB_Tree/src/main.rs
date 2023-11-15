@@ -68,8 +68,8 @@ fn find_key(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
             return find_key(left.clone(), data)
             
         } else {
-            let right = node.borrow_mut().right.take();
-            return find_key(right, key);
+            let right = &node.borrow().right;
+            return find_key(right.clone(), data);
         }
     } else {
         None
@@ -104,7 +104,7 @@ fn insert_node(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
 
 fn insert(rb_tree: RedBlackTree, data: u32)->RedBlackTree{
     let new_tree = insert_node(rb_tree, data);
-    insert_balance(&find_key(&new_tree, data));
+    insert_balance(&find_key(new_tree, data));
     return new_tree;
 }
 
@@ -184,7 +184,7 @@ fn get_child(opt_node: RedBlackTree, direction: Direction) -> RedBlackTree {
     None
 }
 
-fn left_rotate(y: &RedBlackTree) {
+fn left_rotate(y: RedBlackTree) -> Result<RedBlackTree, ()> {
     let node_y = y.clone();
     if let Some(y_node) = y {
         let z = y_node.borrow_mut().parent.take();
@@ -199,17 +199,25 @@ fn left_rotate(y: &RedBlackTree) {
                 child_node.borrow_mut().parent = Some(y_node.clone());
             }
             if let Some(z_node) = z {
-                if z_node.borrow().left == node_y {
+                if z_node.borrow().left == node_y{
                     z_node.borrow_mut().left = Some(x_node);
-                } else {
+                }
+                else{
                     z_node.borrow_mut().right = Some(x_node);
                 }
+                Ok(Some(z_node))
+            } else {
+                Ok(Some(x_node))
             }
+        } else {
+            Err(())
         }
+    } else {
+        Err(())
     }
 }
 
-fn right_rotate(y: &RedBlackTree) {
+fn right_rotate(y: RedBlackTree) -> Result<RedBlackTree, ()> {
     let node_y = y.clone();
     if let Some(y_node) = y {
         let z = y_node.borrow_mut().parent.take();
@@ -221,16 +229,24 @@ fn right_rotate(y: &RedBlackTree) {
             y_node.borrow_mut().left = child.clone();
             x_node.borrow_mut().right = Some(y_node.clone());
             if let Some(child_node) = child {
-                child_node.borrow_mut().parent = Some(y_node.clone());
+                child_node.borrow_mut().parent = Some(y_node);
             }
             if let Some(z_node) = z {
-                if z_node.borrow().left == node_y {
+                if z_node.borrow().left == node_y{
                     z_node.borrow_mut().left = Some(x_node);
-                } else {
+                }
+                else{
                     z_node.borrow_mut().right = Some(x_node);
                 }
+                Ok(Some(z_node))
+            } else {
+                Ok(Some(x_node))
             }
+        } else {
+            Err(())
         }
+    } else {
+        Err(())
     }
 }
 
