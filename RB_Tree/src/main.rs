@@ -1,6 +1,7 @@
 use binary_lib::*;
 use std::cell::RefCell;
 use std::rc::Rc;
+use colored::*;
 
 #[derive(Clone, Debug, PartialEq)]
 enum NodeColor {
@@ -183,63 +184,68 @@ fn right_rotate(y: RedBlackTree) -> Result<RedBlackTree, ()> {
 // sufficient)
 fn main() {
     let mut rb_tree = new_rb_tree(42);
-    rb_tree = insert_node(rb_tree, 3);
-    rb_tree = insert_node(rb_tree, 50);
+    rb_tree = insert_node(rb_tree, 30);
+    rb_tree = insert_node(rb_tree, 5000000);
     rb_tree = insert_node(rb_tree, 45);
     rb_tree = insert_node(rb_tree, 55);
-    rb_tree = left_rotate(rb_tree).unwrap();
-    println!("{:?}", rb_tree.clone().unwrap().borrow().key);
-    println!(
-        "{:?}",
-        get_child(rb_tree.clone(), Direction::Right)
-            .unwrap()
-            .borrow()
-            .key
-    );
-    println!(
-        "{:?}",
-        get_child(rb_tree.clone(), Direction::Left)
-            .unwrap()
-            .borrow()
-            .key
-    );
-    println!(
-        "{:?}",
-        rb_tree
-            .clone()
-            .unwrap()
-            .borrow()
-            .right
-            .clone()
-            .unwrap()
-            .borrow()
-            .key
-    );
-    println!(
-        "{:?}",
-        rb_tree
-            .clone()
-            .unwrap()
-            .borrow()
-            .left
-            .clone()
-            .unwrap()
-            .borrow()
-            .key
-    );
-    println!(
-        "{:?}",
-        get_child(
-            get_child(rb_tree.clone(), Direction::Left),
-            Direction::Right
-        )
-        .unwrap()
-        .borrow()
-        .key
-    );
+    rb_tree = insert_node(rb_tree, 20);
+    rb_tree = insert_node(rb_tree, 35);
+    rb_tree = insert_node(rb_tree, 3);
+    rb_tree = insert_node(rb_tree, 25);
+    // rb_tree = left_rotate(rb_tree).unwrap();
+    print_tree(&rb_tree, 0);
+    // println!("{:?}", rb_tree.clone().unwrap().borrow().key);
+    // println!(
+    //     "{:?}",
+    //     get_child(rb_tree.clone(), Direction::Right)
+    //         .unwrap()
+    //         .borrow()
+    //         .key
+    // );
+    // println!(
+    //     "{:?}",
+    //     get_child(rb_tree.clone(), Direction::Left)
+    //         .unwrap()
+    //         .borrow()
+    //         .key
+    // );
+    // println!(
+    //     "{:?}",
+    //     rb_tree
+    //         .clone()
+    //         .unwrap()
+    //         .borrow()
+    //         .right
+    //         .clone()
+    //         .unwrap()
+    //         .borrow()
+    //         .key
+    // );
+    // println!(
+    //     "{:?}",
+    //     rb_tree
+    //         .clone()
+    //         .unwrap()
+    //         .borrow()
+    //         .left
+    //         .clone()
+    //         .unwrap()
+    //         .borrow()
+    //         .key
+    // );
+    // println!(
+    //     "{:?}",
+    //     get_child(
+    //         get_child(rb_tree.clone(), Direction::Left),
+    //         Direction::Right
+    //     )
+    //     .unwrap()
+    //     .borrow()
+    //     .key
+    // );
 
-    let val = find_key(rb_tree, 50);
-    println!("{:?}", val.unwrap().borrow().key);
+    // let val = find_key(rb_tree, 50);
+    // println!("{:?}", val.unwrap().borrow().key);
     // if let Some(v) = val {
     //     println!("Yay")
     // } else {
@@ -271,3 +277,23 @@ fn main() {
 
 // }
 // }
+
+fn print_tree(rb_tree: &RedBlackTree, cur_level:usize){
+    // dfs, with tabs for each level - 1
+    if let Some(node) = rb_tree {
+        for _ in 0..cur_level {
+            let pad = "----".on_white();
+            print!("{}",pad);
+        }
+        // let _ = std::iter::repeat(print!("-")).take(cur_level);
+        let msg = format!(" {} ", node.borrow().key);
+        if node.borrow().color == NodeColor::Black {
+            println!("{:}", msg.black().on_white());
+        } else {
+            println!("{:}", msg.red().on_white());
+        }
+        
+        print_tree(&node.borrow().left, cur_level+1);
+        print_tree(&node.borrow().right, cur_level+1)
+    }
+}

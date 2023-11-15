@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 binary_lib = {path = "../binary_lib"}
+colored = "2.0.4"
