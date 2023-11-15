@@ -68,8 +68,8 @@ fn find_key(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
             return find_key(left.clone(), data)
             
         } else {
-            let right = &node.borrow().right;
-            return find_key(right.clone(), data);
+            let right = node.borrow_mut().right.take();
+            return find_key(right, key);
         }
     } else {
         None
@@ -102,6 +102,78 @@ fn insert_node(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
     }
 }
 
+fn insert(rb_tree: RedBlackTree, data: u32)->RedBlackTree{
+    let new_tree = insert_node(rb_tree, data);
+    insert_balance(&find_key(&new_tree, data));
+    return new_tree;
+}
+
+fn insert_balance(x: &RedBlackTree) {
+    if let Some(ref x_node) = x {
+        let parent = &x_node.borrow_mut().parent;
+        let mut x_dir = Direction::Left;
+        if x_node.borrow().parent.is_none() {
+            x_node.borrow_mut().color = NodeColor::Black;
+        } else if let Some(ref p_node) = x_node.borrow_mut().parent {
+            let grandparent = &p_node.borrow_mut().parent;
+            if p_node.borrow().right == *x {
+                x_dir = Direction::Right;
+            }
+            if p_node.borrow().color == NodeColor::Red {
+                if let Some(ref gp_node) = p_node.borrow_mut().parent {
+                    if gp_node.borrow().right == x_node.borrow().parent {
+                        if let Some(ref u_node) = p_node.borrow_mut().right {
+                            if u_node.borrow().color == NodeColor::Red {
+                                p_node.borrow_mut().color = NodeColor::Black;
+                                u_node.borrow_mut().color = NodeColor::Black;
+                                gp_node.borrow_mut().color = NodeColor::Red;
+                                insert_balance(&grandparent)
+                            } else {
+                                match x_dir {
+                                    Direction::Left => {
+                                        x_node.borrow_mut().color = NodeColor::Black;
+                                        gp_node.borrow_mut().color = NodeColor::Red;
+                                        left_rotate(parent);
+                                        right_rotate(grandparent);
+                                    }
+                                    Direction::Right => {
+                                        gp_node.borrow_mut().color = NodeColor::Red;
+                                        p_node.borrow_mut().color = NodeColor::Black;
+                                        right_rotate(grandparent);
+                                    }
+                                }
+                            }
+                        }
+                    }else {
+                        if let Some(ref u_node) = p_node.borrow_mut().left {
+                            if u_node.borrow().color == NodeColor::Red {
+                                p_node.borrow_mut().color = NodeColor::Black;
+                                u_node.borrow_mut().color = NodeColor::Black;
+                                gp_node.borrow_mut().color = NodeColor::Red;
+                                insert_balance(&grandparent)
+                            } else {
+                                match x_dir {
+                                    Direction::Left => {
+                                        gp_node.borrow_mut().color = NodeColor::Red;
+                                        p_node.borrow_mut().color = NodeColor::Black;
+                                        left_rotate(grandparent);
+                                    }
+                                    Direction::Right => {
+                                        x_node.borrow_mut().color = NodeColor::Black;
+                                        gp_node.borrow_mut().color = NodeColor::Red;
+                                        right_rotate(parent);
+                                        left_rotate(grandparent);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 fn get_child(opt_node: RedBlackTree, direction: Direction) -> RedBlackTree {
     if let Some(node) = opt_node {
         match direction {
@@ -112,7 +184,7 @@ fn get_child(opt_node: RedBlackTree, direction: Direction) -> RedBlackTree {
     None
 }
 
-fn left_rotate(y: RedBlackTree) -> Result<RedBlackTree, ()> {
+fn left_rotate(y: &RedBlackTree) {
     let node_y = y.clone();
     if let Some(y_node) = y {
         let z = y_node.borrow_mut().parent.take();
@@ -127,25 +199,17 @@ fn left_rotate(y: RedBlackTree) -> Result<RedBlackTree, ()> {
                 child_node.borrow_mut().parent = Some(y_node.clone());
             }
             if let Some(z_node) = z {
-                if z_node.borrow().left == node_y{
+                if z_node.borrow().left == node_y {
                     z_node.borrow_mut().left = Some(x_node);
-                }
-                else{
+                } else {
                     z_node.borrow_mut().right = Some(x_node);
                 }
-                Ok(Some(z_node))
-            } else {
-                Ok(Some(x_node))
             }
-        } else {
-            Err(())
         }
-    } else {
-        Err(())
     }
 }
 
-fn right_rotate(y: RedBlackTree) -> Result<RedBlackTree, ()> {
+fn right_rotate(y: &RedBlackTree) {
     let node_y = y.clone();
     if let Some(y_node) = y {
         let z = y_node.borrow_mut().parent.take();
@@ -157,24 +221,16 @@ fn right_rotate(y: RedBlackTree) -> Result<RedBlackTree, ()> {
             y_node.borrow_mut().left = child.clone();
             x_node.borrow_mut().right = Some(y_node.clone());
             if let Some(child_node) = child {
-                child_node.borrow_mut().parent = Some(y_node);
+                child_node.borrow_mut().parent = Some(y_node.clone());
             }
             if let Some(z_node) = z {
-                if z_node.borrow().left == node_y{
+                if z_node.borrow().left == node_y {
                     z_node.borrow_mut().left = Some(x_node);
-                }
-                else{
+                } else {
                     z_node.borrow_mut().right = Some(x_node);
                 }
-                Ok(Some(z_node))
-            } else {
-                Ok(Some(x_node))
             }
-        } else {
-            Err(())
         }
-    } else {
-        Err(())
     }
 }
 

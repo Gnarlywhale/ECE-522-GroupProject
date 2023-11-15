@@ -87,7 +87,7 @@ fn tree_height(avl_tree: &AVLTree) -> i32 {
     }
 }
 
-fn in_order_traversal(avl_tree: &AVLTree, keys: &mut Vec<u32>) -> Vec<u32> {
+fn in_order_traversal(avl_tree: &AVLTree, keys: &mut Vec<u32>) {
     if let Some(node) = avl_tree {
         let node_borrow = node.borrow();
         keys.push(node_borrow.key);
@@ -95,8 +95,8 @@ fn in_order_traversal(avl_tree: &AVLTree, keys: &mut Vec<u32>) -> Vec<u32> {
             println!("{:?}", keys);
     
         }
-        in_order_traversal(node_borrow.left, keys);
-        in_order_traversal(node_borrow.right, keys);
+        in_order_traversal(&node_borrow.left, keys);
+        in_order_traversal(&node_borrow.right, keys);
         keys.pop();
     }
 }
@@ -109,25 +109,41 @@ fn check_if_empty(avl_tree: &AVLTree) -> Result<(),()> {
         return Err(())
     }
 }
-
-fn tree_layers(avl_tree: &AVLTree, counter: u32, mut string_vec: Vec<String>) -> Vec<String> {
-
-    if avl_tree.is_some() {
-        let node_borrow = avl_tree.as_ref().unwrap().borrow();
-        let key_string = node_borrow.key.as_string();
-        if counter as usize <= string_vec.len() {
-            string_vec[counter as usize].push_str(&key_string);
+/* 
+// Insert the node to delete into this function
+fn right_left_child(avl_tree: &AVLTree) -> Option<TreeNode<u32>> {
+    if let Some(node) = avl_tree {
+        let mut node_borrow = node.borrow();
+        while let Some(left_node) = node_borrow.left.as_ref() {
+            node_borrow = left_node.borrow();
         }
-        
-        tree_layers(node_borrow.left, counter + 1, string_vec);
-        tree_layers(node_borrow.right, counter + 1, string_vec);
+        Some(node.clone())
     }
     else {
-        let key_string = "?".as_string();
-        string_vec[counter as usize].push_str(&key_string);
-        counter += 1;
+        None
     }
 }
+
+// This isnt complete yet
+fn tree_layers(avl_tree: &AVLTree, counter: u32, string_vec: &mut Vec<String>) {
+    if avl_tree.is_some() {
+        let node_borrow = avl_tree.as_ref().unwrap().borrow();
+        let key_string = node_borrow.key.to_string();
+        if counter as usize <= tree_height(avl_tree) as usize - 1 {
+            string_vec[counter as usize].push_str(&key_string);
+        }
+        // This may cause we seperate vec_strings to be returned
+        tree_layers(&node_borrow.left, counter + 1, string_vec);
+        tree_layers(&node_borrow.right, counter + 1, string_vec);
+    }
+    else {
+        let key_string = "?".to_string();
+        if counter as usize <= tree_height(avl_tree) as usize - 1 {
+            string_vec[counter as usize].push_str(&key_string);
+        }
+    }
+}
+*/
 
 // TO IMPLEMENT
 // 1- DONE: Insert a node to the AVL tree.
@@ -148,4 +164,6 @@ fn main() {
     let tree_height = tree_height(&avl_tree);
     println!("{}",leaf_count);
     println!("{}",tree_height);
+    let mut keys: Vec<u32> = Vec::new();
+    in_order_traversal(&avl_tree, &mut keys);
 }
