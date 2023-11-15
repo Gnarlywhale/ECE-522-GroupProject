@@ -87,14 +87,55 @@ fn tree_height(avl_tree: &AVLTree) -> i32 {
     }
 }
 
+fn in_order_traversal(avl_tree: &AVLTree, keys: &mut Vec<u32>) -> Vec<u32> {
+    if let Some(node) = avl_tree {
+        let node_borrow = node.borrow();
+        keys.push(node_borrow.key);
+        if node_borrow.left.is_none() && node_borrow.right.is_none() {
+            println!("{:?}", keys);
+    
+        }
+        in_order_traversal(node_borrow.left, keys);
+        in_order_traversal(node_borrow.right, keys);
+        keys.pop();
+    }
+}
+
+fn check_if_empty(avl_tree: &AVLTree) -> Result<(),()> {
+    if avl_tree.is_some() {
+        return Ok(())
+    }
+    else {
+        return Err(())
+    }
+}
+
+fn tree_layers(avl_tree: &AVLTree, counter: u32, mut string_vec: Vec<String>) -> Vec<String> {
+
+    if avl_tree.is_some() {
+        let node_borrow = avl_tree.as_ref().unwrap().borrow();
+        let key_string = node_borrow.key.as_string();
+        if counter as usize <= string_vec.len() {
+            string_vec[counter as usize].push_str(&key_string);
+        }
+        
+        tree_layers(node_borrow.left, counter + 1, string_vec);
+        tree_layers(node_borrow.right, counter + 1, string_vec);
+    }
+    else {
+        let key_string = "?".as_string();
+        string_vec[counter as usize].push_str(&key_string);
+        counter += 1;
+    }
+}
 
 // TO IMPLEMENT
 // 1- DONE: Insert a node to the AVL tree.
 // 2- Delete a node from the AVL tree.
 // 3- DONE: Count the number of leaves in a tree.
 // 4- DONE: Return the height of a tree.
-// 5- Print In-order traversal of the tree.  -> Starting from root, then all lefts  
-// 6- Check if the tree is empty.
+// 5- DONE: Print In-order traversal of the tree.  -> Starting from root, then all lefts  
+// 6- DONE: Check if the tree is empty.
 // 7- Print the tree showing its structure. (Using println!(“{:#?}”,tree); is NOT
 // sufficient)
 fn main() {
