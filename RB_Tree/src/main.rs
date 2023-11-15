@@ -56,19 +56,24 @@ fn new_rb_tree(data: u32) -> RedBlackTree {
     Some(Rc::new(RefCell::new(TreeNode::new(data))))
 }
 
-fn find_key(rb_tree: RedBlackTree, key: u32) -> Option<Rc<RefCell<TreeNode<u32>>>> {
-    if let Some(node) = rb_tree {
-        if key == node.borrow_mut().key {
-            return Some(node);
-        } else if key < node.borrow_mut().key {
-            let left = node.borrow_mut().left.take();
-            return find_key(left, key);
-        } else {
-            let right = node.borrow_mut().right.take();
-            return find_key(right, key);
+
+
+fn find_key(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
+    if let Some(node) = rb_tree.clone() {
+        if data == node.borrow().key {
+            return rb_tree;
         }
+        if data < node.borrow().key {
+            let left = &node.borrow().left;
+            return find_key(left.clone(), data)
+            
+        } else {
+            let right = &node.borrow().right;
+            return find_key(right.clone(), data);
+        }
+    } else {
+        None
     }
-    None
 }
 
 fn insert_node(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
@@ -192,8 +197,12 @@ fn main() {
     rb_tree = insert_node(rb_tree, 35);
     rb_tree = insert_node(rb_tree, 3);
     rb_tree = insert_node(rb_tree, 25);
+    let print_node = find_key(rb_tree.clone(), 20);
+    print_tree(&print_node,0);
+    print_tree(&rb_tree.clone(), 0);
+
     // rb_tree = left_rotate(rb_tree).unwrap();
-    print_tree(&rb_tree, 0);
+    
     // println!("{:?}", rb_tree.clone().unwrap().borrow().key);
     // println!(
     //     "{:?}",
@@ -277,13 +286,18 @@ fn main() {
 
 // }
 // }
-
 fn print_tree(rb_tree: &RedBlackTree, cur_level:usize){
     // dfs, with tabs for each level - 1
     if let Some(node) = rb_tree {
-        for _ in 0..cur_level {
-            let pad = "----".on_white();
-            print!("{}",pad);
+        for i in 0..cur_level {
+            
+            let pad: &str;
+            if i == cur_level-1{
+                pad = " |→";
+            } else {
+                pad = " |  ";
+            }
+            print!("{}",pad.on_white());
         }
         // let _ = std::iter::repeat(print!("-")).take(cur_level);
         let msg = format!(" {} ", node.borrow().key);
