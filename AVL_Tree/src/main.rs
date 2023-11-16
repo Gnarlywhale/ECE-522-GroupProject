@@ -9,6 +9,7 @@ type AVLTree = Option<Tree>;
 #[derive(Debug)]
 struct TreeNode<T> {
     pub key: T,
+    pub balance_factor: i32,
     pub parent: AVLTree,
     left: AVLTree,
     right: AVLTree,
@@ -18,6 +19,7 @@ impl <T: Ord> TreeNode<T>{
     fn new(data:T)-> Self {
         Self {
             key: data,
+            balance_factor: 0,
             parent: None,
             left: None,
             right: None,
@@ -27,6 +29,38 @@ impl <T: Ord> TreeNode<T>{
 
 fn new_avl_tree(data: u32) -> AVLTree {
     Some(Rc::new(RefCell::new(TreeNode::new(data))))
+}
+
+fn find_key(avl_tree: AVLTree, data: u32) -> AVLTree {
+    if let Some(node) = avl_tree.clone() {
+        if data == node.borrow().key {
+            return avl_tree;
+        }
+        if data < node.borrow().key {
+            let left = &node.borrow().left;
+            return find_key(left.clone(), data)
+            
+        } else {
+            let right = &node.borrow().right;
+            return find_key(right.clone(), data);
+        }
+    } else {
+        None
+    }
+}
+
+// Insert the newly added node into this function
+fn rebalance_factor(avl_tree: AVLTree) {
+    if let Some(node) = avl_tree {
+        if let Some(parent) = &node.borrow().parent {
+            let left_height = tree_height(&parent.borrow().left);
+            let right_height = tree_height(&parent.borrow().right);
+            let balance_factor = left_height - right_height;
+            // Add calculations to change the balance factors here
+            parent.balance_factor = balance_factor;
+            rebalance_factor(new_node);
+        }
+    }
 }
 
 fn insert_node(avl_tree: AVLTree, data: u32) -> AVLTree {
@@ -109,6 +143,23 @@ fn check_if_empty(avl_tree: &AVLTree) -> Result<(),()> {
         return Err(())
     }
 }
+
+fn print_tree(avl_tree: &AVLTree, cur_level:usize){
+    // dfs, with tabs for each level - 1
+    if let Some(node) = avl_tree {
+        for _ in 0..cur_level {
+            let pad = "----";
+            print!("{}",pad);
+        }
+        // let _ = std::iter::repeat(print!("-")).take(cur_level);
+        let msg = format!(" {} ", node.borrow().key);
+        println!("{:}", msg);
+        
+        print_tree(&node.borrow().left, cur_level+1);
+        print_tree(&node.borrow().right, cur_level+1)
+    }
+}
+
 /* 
 // Insert the node to delete into this function
 fn right_left_child(avl_tree: &AVLTree) -> Option<TreeNode<u32>> {
@@ -166,4 +217,5 @@ fn main() {
     println!("{}",tree_height);
     let mut keys: Vec<u32> = Vec::new();
     in_order_traversal(&avl_tree, &mut keys);
+    print_tree(&avl_tree, 0);
 }
