@@ -184,24 +184,24 @@ fn insert(rb_tree: RedBlackTree, data: u32)->RedBlackTree{
 
 fn insert_balance(x: &RedBlackTree) {
     if let Some(ref x_node) = x {
-        let parent = &x_node.borrow_mut().parent;
+        let parent = &x_node.borrow().parent;
         let mut x_dir = Direction::Left;
-        if x_node.borrow().parent.is_none() {
+        if parent.is_none() {
             x_node.borrow_mut().color = NodeColor::Black;
-        } else if let Some(ref p_node) = x_node.borrow_mut().parent {
-            let grandparent = &p_node.borrow_mut().parent;
+        } else if let Some(p_node) = parent {
             if p_node.borrow().right == *x {
                 x_dir = Direction::Right;
             }
             if p_node.borrow().color == NodeColor::Red {
-                if let Some(ref gp_node) = p_node.borrow_mut().parent {
+                let grandparent = &p_node.borrow().parent;
+                if let Some(gp_node) = grandparent {
                     if gp_node.borrow().right == x_node.borrow().parent {
-                        if let Some(ref u_node) = p_node.borrow_mut().right {
+                        if let Some(ref u_node) = gp_node.borrow().right {
                             if u_node.borrow().color == NodeColor::Red {
                                 p_node.borrow_mut().color = NodeColor::Black;
                                 u_node.borrow_mut().color = NodeColor::Black;
                                 gp_node.borrow_mut().color = NodeColor::Red;
-                                insert_balance(&grandparent)
+                                insert_balance(grandparent)
                             } else {
                                 match x_dir {
                                     Direction::Left => {
@@ -219,12 +219,12 @@ fn insert_balance(x: &RedBlackTree) {
                             }
                         }
                     }else {
-                        if let Some(ref u_node) = p_node.borrow_mut().left {
+                        if let Some(ref u_node) = gp_node.borrow().left {
                             if u_node.borrow().color == NodeColor::Red {
                                 p_node.borrow_mut().color = NodeColor::Black;
                                 u_node.borrow_mut().color = NodeColor::Black;
                                 gp_node.borrow_mut().color = NodeColor::Red;
-                                insert_balance(&grandparent)
+                                insert_balance(grandparent)
                             } else {
                                 match x_dir {
                                     Direction::Left => {
