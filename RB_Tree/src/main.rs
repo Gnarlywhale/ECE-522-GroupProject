@@ -178,7 +178,8 @@ fn insert_node(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
 
 fn insert(rb_tree: RedBlackTree, data: u32)->RedBlackTree{
     let new_tree = insert_node(rb_tree, data);
-    insert_balance(&find_key(new_tree.clone(), data));
+    let node = &find_key(new_tree.clone(), data);
+    insert_balance(node);
     return new_tree;
 }
 
@@ -189,13 +190,13 @@ fn insert_balance(x: &RedBlackTree) {
         if parent.is_none() {
             x_node.borrow_mut().color = NodeColor::Black;
         } else if let Some(p_node) = parent {
-            if p_node.borrow().right == *x {
+            if &p_node.borrow().right == x {
                 x_dir = Direction::Right;
             }
             if p_node.borrow().color == NodeColor::Red {
                 let grandparent = &p_node.borrow().parent;
                 if let Some(gp_node) = grandparent {
-                    if gp_node.borrow().right == x_node.borrow().parent {
+                    if gp_node.borrow().right == *parent {
                         if let Some(ref u_node) = gp_node.borrow().right {
                             if u_node.borrow().color == NodeColor::Red {
                                 p_node.borrow_mut().color = NodeColor::Black;
@@ -319,7 +320,7 @@ fn right_rotate(y: &RedBlackTree) {
 // sufficient)
 fn main() {
     let mut rb_tree = new_rb_tree(42);
-    rb_tree = insert_node(rb_tree, 30);
+    rb_tree = insert(rb_tree, 30);
     rb_tree = insert_node(rb_tree, 500);
     rb_tree = insert_node(rb_tree, 45);
     rb_tree = insert_node(rb_tree, 55);
