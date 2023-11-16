@@ -179,42 +179,45 @@ fn insert_node(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
 fn insert(rb_tree: RedBlackTree, data: u32)->RedBlackTree{
     let new_tree = insert_node(rb_tree, data);
     let node = &find_key(new_tree.clone(), data);
-    insert_balance(node);
+    let root = insert_balance(node);
+    if root.is_some(){
+        return root;
+    }
     return new_tree;
 }
 
-fn insert_balance(x: &RedBlackTree) {
-    if let Some(ref x_node) = x {
-        let parent = &x_node.borrow().parent;
+fn insert_balance(x: &RedBlackTree)->RedBlackTree {
+    if let Some(x_node) = x {
         let mut x_dir = Direction::Left;
-        if parent.is_none() {
+        if x_node.borrow().parent.is_none() {
             x_node.borrow_mut().color = NodeColor::Black;
-        } else if let Some(p_node) = parent {
-            if &p_node.borrow().right == x {
-                x_dir = Direction::Right;
+        } else if let Some(p_node) = &x_node.borrow().parent {
+            if let Some(right) = &p_node.borrow().right{
+                if right.borrow().key == x_node.borrow().key{
+                    x_dir = Direction::Right;
+                }
             }
             if p_node.borrow().color == NodeColor::Red {
-                let grandparent = &p_node.borrow().parent;
-                if let Some(gp_node) = grandparent {
-                    if gp_node.borrow().left == *parent {
+                if let Some(gp_node) = &p_node.borrow().parent.clone() {
+                    if gp_node.clone().borrow().left.clone() == x_node.borrow().parent.clone() {
                         if let Some(ref u_node) = gp_node.borrow().right {
                             if u_node.borrow().color == NodeColor::Red {
                                 p_node.borrow_mut().color = NodeColor::Black;
                                 u_node.borrow_mut().color = NodeColor::Black;
                                 gp_node.borrow_mut().color = NodeColor::Red;
-                                insert_balance(grandparent)
+                                return insert_balance(&p_node.borrow().parent);
                             } else {
                                 match x_dir {
                                     Direction::Left => {
                                         x_node.borrow_mut().color = NodeColor::Black;
                                         gp_node.borrow_mut().color = NodeColor::Red;
-                                        left_rotate(parent);
-                                        right_rotate(grandparent);
+                                        left_rotate(&x_node.borrow().parent);
+                                        return right_rotate(&p_node.borrow().parent);
                                     }
                                     Direction::Right => {
                                         gp_node.borrow_mut().color = NodeColor::Red;
                                         p_node.borrow_mut().color = NodeColor::Black;
-                                        right_rotate(grandparent);
+                                        return right_rotate(&p_node.borrow().parent);
                                     }
                                 }
                             }
@@ -223,35 +226,35 @@ fn insert_balance(x: &RedBlackTree) {
                                 Direction::Left => {
                                     x_node.borrow_mut().color = NodeColor::Black;
                                     gp_node.borrow_mut().color = NodeColor::Red;
-                                    left_rotate(parent);
-                                    right_rotate(grandparent);
+                                    left_rotate(&x_node.borrow().parent);
+                                    return right_rotate(&p_node.borrow().parent);
                                 }
                                 Direction::Right => {
                                     gp_node.borrow_mut().color = NodeColor::Red;
                                     p_node.borrow_mut().color = NodeColor::Black;
-                                    right_rotate(grandparent);
+                                    return right_rotate(&p_node.borrow().parent);
                                 }
                             }
                         }
                     }else {
-                        if let Some(ref u_node) = gp_node.borrow().left {
+                        if let Some(ref u_node) = gp_node.clone().borrow().left.clone() {
                             if u_node.borrow().color == NodeColor::Red {
                                 p_node.borrow_mut().color = NodeColor::Black;
                                 u_node.borrow_mut().color = NodeColor::Black;
                                 gp_node.borrow_mut().color = NodeColor::Red;
-                                insert_balance(grandparent)
+                                return insert_balance(&p_node.borrow().parent);
                             } else {
                                 match x_dir {
                                     Direction::Left => {
                                         gp_node.borrow_mut().color = NodeColor::Red;
                                         p_node.borrow_mut().color = NodeColor::Black;
-                                        left_rotate(grandparent);
+                                        return left_rotate(&p_node.borrow().parent);
                                     }
                                     Direction::Right => {
                                         x_node.borrow_mut().color = NodeColor::Black;
                                         gp_node.borrow_mut().color = NodeColor::Red;
-                                        right_rotate(parent);
-                                        left_rotate(grandparent);
+                                        right_rotate(&x_node.borrow().parent);
+                                        return left_rotate(&p_node.borrow().parent);
                                     }
                                 }
                             }
@@ -260,13 +263,13 @@ fn insert_balance(x: &RedBlackTree) {
                                 Direction::Left => {
                                     x_node.borrow_mut().color = NodeColor::Black;
                                     gp_node.borrow_mut().color = NodeColor::Red;
-                                    left_rotate(parent);
-                                    right_rotate(grandparent);
+                                    left_rotate(&x_node.borrow().parent);
+                                    return right_rotate(&p_node.borrow().parent);
                                 }
                                 Direction::Right => {
                                     gp_node.borrow_mut().color = NodeColor::Red;
                                     p_node.borrow_mut().color = NodeColor::Black;
-                                    right_rotate(grandparent);
+                                    return right_rotate(&p_node.borrow().parent);
                                 }
                             }
                         }
@@ -275,6 +278,7 @@ fn insert_balance(x: &RedBlackTree) {
             }
         }
     }
+    None
 }
 
 fn get_child(opt_node: RedBlackTree, direction: Direction) -> RedBlackTree {
@@ -287,7 +291,7 @@ fn get_child(opt_node: RedBlackTree, direction: Direction) -> RedBlackTree {
     None
 }
 
-fn left_rotate(y: &RedBlackTree) {
+fn left_rotate(y: &RedBlackTree)-> RedBlackTree {
     let node_y = y.clone();
     if let Some(y_node) = y {
         let z = y_node.borrow_mut().parent.take();
@@ -307,12 +311,15 @@ fn left_rotate(y: &RedBlackTree) {
                 } else {
                     z_node.borrow_mut().right = Some(x_node);
                 }
+            }else{
+                return Some(x_node);
             }
         }
     }
+    None
 }
 
-fn right_rotate(y: &RedBlackTree) {
+fn right_rotate(y: &RedBlackTree)->RedBlackTree {
     let node_y = y.clone();
     if let Some(y_node) = y {
         let z = y_node.borrow_mut().parent.take();
@@ -332,9 +339,12 @@ fn right_rotate(y: &RedBlackTree) {
                 } else {
                     z_node.borrow_mut().right = Some(x_node);
                 }
+            }else{
+                return Some(x_node);
             }
         }
     }
+    None
 }
 
 // TO IMPLEMENT
@@ -350,16 +360,17 @@ fn main() {
     let mut rb_tree = new_rb_tree(42);
     rb_tree = insert(rb_tree, 30);
     rb_tree = insert(rb_tree, 500);
-    rb_tree = insert_node(rb_tree, 45);
-    rb_tree = insert_node(rb_tree, 55);
-    rb_tree = insert_node(rb_tree, 20);
-    rb_tree = insert_node(rb_tree, 35);
-    rb_tree = insert_node(rb_tree, 33);
-    rb_tree = insert_node(rb_tree, 31);
-    rb_tree = insert_node(rb_tree, 34);
-    rb_tree = insert_node(rb_tree, 36);
-    rb_tree = insert_node(rb_tree, 3);
-    rb_tree = insert_node(rb_tree, 25);
+    rb_tree = insert(rb_tree, 45);
+    // rb_tree = insert(rb_tree, 55);
+    // rb_tree = insert(rb_tree, 20);
+    // rb_tree = insert(rb_tree, 35);
+    // rb_tree = insert(rb_tree, 33);
+    // rb_tree = insert(rb_tree, 31);
+    // rb_tree = insert(rb_tree, 34);
+    // rb_tree = insert(rb_tree, 36);
+    // rb_tree = insert(rb_tree, 3);
+    // rb_tree = insert(rb_tree, 25);
+    // rb_tree = right_rotate(&rb_tree);
     // let print_node = find_key(rb_tree.clone(), 20);
     // print_tree(&print_node,0);
     println!("Sample Tree:");
