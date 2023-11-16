@@ -54,9 +54,13 @@ impl<T: Ord> TreeNode<T> {
 // }
 
 fn new_rb_tree(data: u32) -> RedBlackTree {
+    let mut node = TreeNode::new(data);
+    node.color = NodeColor::Black;
+    Some(Rc::new(RefCell::new(node)))
+}
+fn new_rb_node(data: u32) -> RedBlackTree {
     Some(Rc::new(RefCell::new(TreeNode::new(data))))
 }
-
 
 
 fn find_key(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
@@ -168,7 +172,7 @@ fn insert_node(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
         }
         Some(node)
     } else {
-        new_rb_tree(data)
+        new_rb_node(data)
     }
 }
 
@@ -369,9 +373,21 @@ fn main() {
 // }
 // }
 
-// TODO: Have some indicator for a child being left or right (if there's only one it's ambiguous until you 
-// check if the child is smaller or greater than its parent)
+// 
+// Swap commented code to allow null prints to help clarify which children are left and right nodes
+// Could probably implement both versions as an added feature
 fn print_tree(rb_tree: &RedBlackTree, cur_level:usize){
+    // for i in 0..cur_level {
+            
+    //     let pad: &str;
+    //     if i == cur_level-1{
+    //         pad = " |→";
+    //     } else {
+    //         pad = " |  ";
+    //     }
+    //     print!("{}",pad.on_white());
+    // }
+
     // dfs, with tabs for each level - 1
     if let Some(node) = rb_tree {
         for i in 0..cur_level {
@@ -394,5 +410,9 @@ fn print_tree(rb_tree: &RedBlackTree, cur_level:usize){
         
         print_tree(&node.borrow().left, cur_level+1);
         print_tree(&node.borrow().right, cur_level+1)
+    } else {
+        // println!();
     }
+
+    
 }
