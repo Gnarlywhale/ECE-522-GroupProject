@@ -1,4 +1,5 @@
 use binary_lib::*;
+use core::borrow;
 use std::cell::RefCell;
 use std::rc::Rc;
 use colored::*;
@@ -75,6 +76,19 @@ fn find_key(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
         None
     }
 }
+fn in_order_successor(rb_tree: RedBlackTree)-> RedBlackTree {
+    if let Some(node) = rb_tree {
+        // 
+        let mut curr_node = node.borrow().right.clone().unwrap();
+        while let Some(l_node) = curr_node.clone().borrow().left.clone(){
+            curr_node = l_node.clone();
+        }
+        // Found last successor
+        return Some(curr_node.clone())
+        // print_tree(&Some(curr_node.clone()), 0)
+    }
+    None
+}
 fn remove_node(rb_tree: RedBlackTree, data:u32) {
     if let Some(node) = find_key(rb_tree, data) {
         // Handle terminal node case
@@ -112,6 +126,21 @@ fn remove_node(rb_tree: RedBlackTree, data:u32) {
                     p_node.borrow_mut().right = rep_node.clone();
                 }
                 return
+            }
+        } else {
+            if let Some(rep_node) = in_order_successor(Some(node.clone())){
+                // Set the parent key to match the rep_node key
+                node.borrow_mut().key = rep_node.clone().borrow().key;
+                // Remove the reference from the replacement node's parent to the replacement node
+                let parent = &rep_node.borrow().parent;
+                if let Some(p_node) = parent {
+                    if  rep_node.clone().borrow().key < p_node.clone().borrow().key   {
+                        p_node.clone().borrow_mut().left = None
+                    } else {
+                        p_node.clone().borrow_mut().right = None
+                    }
+                }
+                
             }
         }
 
@@ -287,22 +316,30 @@ fn right_rotate(y: &RedBlackTree) {
 fn main() {
     let mut rb_tree = new_rb_tree(42);
     rb_tree = insert_node(rb_tree, 30);
-    rb_tree = insert_node(rb_tree, 5000000);
+    rb_tree = insert_node(rb_tree, 500);
     rb_tree = insert_node(rb_tree, 45);
     rb_tree = insert_node(rb_tree, 55);
     rb_tree = insert_node(rb_tree, 20);
     rb_tree = insert_node(rb_tree, 35);
+    rb_tree = insert_node(rb_tree, 33);
+    rb_tree = insert_node(rb_tree, 31);
+    rb_tree = insert_node(rb_tree, 34);
+    rb_tree = insert_node(rb_tree, 36);
     rb_tree = insert_node(rb_tree, 3);
     rb_tree = insert_node(rb_tree, 25);
     // let print_node = find_key(rb_tree.clone(), 20);
     // print_tree(&print_node,0);
     println!("Sample Tree:");
     print_tree(&rb_tree.clone(), 0);
+    println!("Removing node with multiple children: 30");
+    remove_node(rb_tree.clone(), 30);
+    println!("Should now show 31 in place of 30, and have 30 removed (in-order successor)");
+    print_tree(&rb_tree.clone(), 0);
     println!("Deleting terminal node: 25");
     remove_node(rb_tree.clone(), 25);
     print_tree(&rb_tree.clone(), 0);
-    println!("Deleting single child node: 45");
-    remove_node(rb_tree.clone(), 45);
+    println!("Deleting single child node: 500");
+    remove_node(rb_tree.clone(), 500);
     print_tree(&rb_tree.clone(), 0);
     // rb_tree = left_rotate(rb_tree).unwrap();
     
@@ -331,6 +368,9 @@ fn main() {
 
 // }
 // }
+
+// TODO: Have some indicator for a child being left or right (if there's only one it's ambiguous until you 
+// check if the child is smaller or greater than its parent)
 fn print_tree(rb_tree: &RedBlackTree, cur_level:usize){
     // dfs, with tabs for each level - 1
     if let Some(node) = rb_tree {
