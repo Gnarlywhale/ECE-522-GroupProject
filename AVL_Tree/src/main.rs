@@ -53,12 +53,13 @@ fn find_key(avl_tree: AVLTree, data: u32) -> AVLTree {
 fn rebalance_factor(avl_tree: AVLTree) {
     if let Some(node) = avl_tree {
         if let Some(parent) = &node.borrow().parent {
-            let left_height = tree_height(&parent.borrow().left);
-            let right_height = tree_height(&parent.borrow().right);
+            let mut temp_parent = parent.borrow_mut();
+            let left_height = tree_height(&temp_parent.left);
+            let right_height = tree_height(&temp_parent.right);
             let balance_factor = left_height - right_height;
             // Add calculations to change the balance factors here
-            parent.balance_factor = balance_factor;
-            rebalance_factor(new_node);
+            temp_parent.balance_factor = balance_factor;
+            rebalance_factor(temp_parent.parent.clone());
         }
     }
 }
