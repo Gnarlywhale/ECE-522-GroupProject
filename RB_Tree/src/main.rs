@@ -87,8 +87,34 @@ fn remove_node(rb_tree: RedBlackTree, data:u32) {
                 } else {
                     p_node.borrow_mut().right = None;
                 }
+                return
+            }
+        } else if node.borrow().left.is_none() && node.borrow().right.is_some(){
+            // One right child
+            let rep_node = &node.borrow().right;
+            let parent = &node.borrow().parent;
+            if let Some(p_node) = parent {
+                if node_key < p_node.borrow().key {
+                    p_node.borrow_mut().left = rep_node.clone();
+                } else {
+                    p_node.borrow_mut().right = rep_node.clone();
+                }
+                return
+            }
+        } else if node.borrow().left.is_some() && node.borrow().right.is_none(){
+            // One left child 
+            let rep_node = &node.borrow().left;
+            let parent = &node.borrow().parent;
+            if let Some(p_node) = parent {
+                if node_key < p_node.borrow().key {
+                    p_node.borrow_mut().left = rep_node.clone();
+                } else {
+                    p_node.borrow_mut().right = rep_node.clone();
+                }
+                return
             }
         }
+
     }
 }
 fn insert_node(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
@@ -270,10 +296,14 @@ fn main() {
     rb_tree = insert_node(rb_tree, 25);
     // let print_node = find_key(rb_tree.clone(), 20);
     // print_tree(&print_node,0);
+    println!("Sample Tree:");
     print_tree(&rb_tree.clone(), 0);
-
+    println!("Deleting terminal node: 25");
     remove_node(rb_tree.clone(), 25);
-    print_tree(&rb_tree, 0);
+    print_tree(&rb_tree.clone(), 0);
+    println!("Deleting single child node: 45");
+    remove_node(rb_tree.clone(), 45);
+    print_tree(&rb_tree.clone(), 0);
     // rb_tree = left_rotate(rb_tree).unwrap();
     
 }
