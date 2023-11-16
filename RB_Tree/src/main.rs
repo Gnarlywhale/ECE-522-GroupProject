@@ -75,7 +75,22 @@ fn find_key(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
         None
     }
 }
-
+fn remove_node(rb_tree: RedBlackTree, data:u32) {
+    if let Some(node) = find_key(rb_tree, data) {
+        // Handle terminal node case
+        let node_key = node.borrow().key.clone();
+        if node.borrow().left.is_none() && node.borrow().right.is_none(){
+            let parent = &node.borrow().parent;
+            if let Some(p_node) = parent {
+                if node_key < p_node.borrow().key {
+                    p_node.borrow_mut().left = None;
+                } else {
+                    p_node.borrow_mut().right = None;
+                }
+            }
+        }
+    }
+}
 fn insert_node(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
     if let Some(node) = rb_tree {
         if data == node.borrow().key {
@@ -253,10 +268,12 @@ fn main() {
     rb_tree = insert_node(rb_tree, 35);
     rb_tree = insert_node(rb_tree, 3);
     rb_tree = insert_node(rb_tree, 25);
-    let print_node = find_key(rb_tree.clone(), 20);
-    print_tree(&print_node,0);
+    // let print_node = find_key(rb_tree.clone(), 20);
+    // print_tree(&print_node,0);
     print_tree(&rb_tree.clone(), 0);
 
+    remove_node(rb_tree.clone(), 25);
+    print_tree(&rb_tree, 0);
     // rb_tree = left_rotate(rb_tree).unwrap();
     
 }
