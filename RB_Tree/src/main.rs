@@ -104,7 +104,7 @@ fn insert_node(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
 
 fn insert(rb_tree: RedBlackTree, data: u32)->RedBlackTree{
     let new_tree = insert_node(rb_tree, data);
-    insert_balance(&find_key(new_tree, data));
+    insert_balance(&find_key(new_tree.clone(), data));
     return new_tree;
 }
 
