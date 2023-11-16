@@ -1,8 +1,8 @@
 use binary_lib::*;
+use colored::*;
 use core::borrow;
 use std::cell::RefCell;
 use std::rc::Rc;
-use colored::*;
 
 #[derive(Clone, Debug, PartialEq)]
 enum NodeColor {
@@ -62,7 +62,6 @@ fn new_rb_node(data: u32) -> RedBlackTree {
     Some(Rc::new(RefCell::new(TreeNode::new(data))))
 }
 
-
 fn find_key(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
     if let Some(node) = rb_tree.clone() {
         if data == node.borrow().key {
@@ -70,8 +69,7 @@ fn find_key(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
         }
         if data < node.borrow().key {
             let left = &node.borrow().left;
-            return find_key(left.clone(), data)
-            
+            return find_key(left.clone(), data);
         } else {
             let right = &node.borrow().right;
             return find_key(right.clone(), data);
@@ -80,24 +78,24 @@ fn find_key(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
         None
     }
 }
-fn in_order_successor(rb_tree: RedBlackTree)-> RedBlackTree {
+fn in_order_successor(rb_tree: RedBlackTree) -> RedBlackTree {
     if let Some(node) = rb_tree {
-        // 
+        //
         let mut curr_node = node.borrow().right.clone().unwrap();
-        while let Some(l_node) = curr_node.clone().borrow().left.clone(){
+        while let Some(l_node) = curr_node.clone().borrow().left.clone() {
             curr_node = l_node.clone();
         }
         // Found last successor
-        return Some(curr_node.clone())
+        return Some(curr_node.clone());
         // print_tree(&Some(curr_node.clone()), 0)
     }
     None
 }
-fn remove_node(rb_tree: RedBlackTree, data:u32) {
+fn remove_node(rb_tree: RedBlackTree, data: u32) {
     if let Some(node) = find_key(rb_tree, data) {
         // Handle terminal node case
         let node_key = node.borrow().key.clone();
-        if node.borrow().left.is_none() && node.borrow().right.is_none(){
+        if node.borrow().left.is_none() && node.borrow().right.is_none() {
             let parent = &node.borrow().parent;
             if let Some(p_node) = parent {
                 if node_key < p_node.borrow().key {
@@ -105,9 +103,9 @@ fn remove_node(rb_tree: RedBlackTree, data:u32) {
                 } else {
                     p_node.borrow_mut().right = None;
                 }
-                return
+                return;
             }
-        } else if node.borrow().left.is_none() && node.borrow().right.is_some(){
+        } else if node.borrow().left.is_none() && node.borrow().right.is_some() {
             // One right child
             let rep_node = &node.borrow().right;
             let parent = &node.borrow().parent;
@@ -117,10 +115,10 @@ fn remove_node(rb_tree: RedBlackTree, data:u32) {
                 } else {
                     p_node.borrow_mut().right = rep_node.clone();
                 }
-                return
+                return;
             }
-        } else if node.borrow().left.is_some() && node.borrow().right.is_none(){
-            // One left child 
+        } else if node.borrow().left.is_some() && node.borrow().right.is_none() {
+            // One left child
             let rep_node = &node.borrow().left;
             let parent = &node.borrow().parent;
             if let Some(p_node) = parent {
@@ -129,25 +127,23 @@ fn remove_node(rb_tree: RedBlackTree, data:u32) {
                 } else {
                     p_node.borrow_mut().right = rep_node.clone();
                 }
-                return
+                return;
             }
         } else {
-            if let Some(rep_node) = in_order_successor(Some(node.clone())){
+            if let Some(rep_node) = in_order_successor(Some(node.clone())) {
                 // Set the parent key to match the rep_node key
                 node.borrow_mut().key = rep_node.clone().borrow().key;
                 // Remove the reference from the replacement node's parent to the replacement node
                 let parent = &rep_node.borrow().parent;
                 if let Some(p_node) = parent {
-                    if  rep_node.clone().borrow().key < p_node.clone().borrow().key   {
+                    if rep_node.clone().borrow().key < p_node.clone().borrow().key {
                         p_node.clone().borrow_mut().left = None
                     } else {
                         p_node.clone().borrow_mut().right = None
                     }
                 }
-                
             }
         }
-
     }
 }
 fn insert_node(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
@@ -176,36 +172,58 @@ fn insert_node(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
     }
 }
 
-fn insert(rb_tree: RedBlackTree, data: u32)->RedBlackTree{
+fn insert(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
     let new_tree = insert_node(rb_tree, data);
     let node = &find_key(new_tree.clone(), data);
     let root = insert_balance(node);
-    if root.is_some(){
+    if root.is_some() {
         return root;
     }
     return new_tree;
 }
 
-fn insert_balance(x: &RedBlackTree)->RedBlackTree {
+fn insert_balance(x: &RedBlackTree) -> RedBlackTree {
     if let Some(x_node) = x {
         let mut x_dir = Direction::Left;
         if x_node.borrow().parent.is_none() {
             x_node.borrow_mut().color = NodeColor::Black;
         } else if let Some(p_node) = &x_node.borrow().parent {
-            if let Some(right) = &p_node.borrow().right{
-                if right.borrow().key == x_node.borrow().key{
+            if let Some(right) = &p_node.clone().borrow().right {
+                if right.borrow().key == x_node.borrow().key {
                     x_dir = Direction::Right;
                 }
             }
             if p_node.borrow().color == NodeColor::Red {
-                if let Some(gp_node) = &p_node.borrow().parent.clone() {
-                    if gp_node.clone().borrow().left.clone() == x_node.borrow().parent.clone() {
-                        if let Some(ref u_node) = gp_node.borrow().right {
-                            if u_node.borrow().color == NodeColor::Red {
-                                p_node.borrow_mut().color = NodeColor::Black;
-                                u_node.borrow_mut().color = NodeColor::Black;
-                                gp_node.borrow_mut().color = NodeColor::Red;
-                                return insert_balance(&p_node.borrow().parent);
+                if let Some(gp_node) = &p_node.clone().borrow().parent.clone() {
+                    let mut p_dir = Direction::Right;
+                    if let Some(left) = &gp_node.clone().borrow().left {
+                        if left.borrow().key == p_node.clone().borrow().key {
+                            p_dir = Direction::Right;
+                        }
+                    }
+                    match p_dir {
+                        Direction::Left => {
+                            if let Some(ref u_node) = gp_node.borrow().right {
+                                if u_node.borrow().color == NodeColor::Red {
+                                    p_node.borrow_mut().color = NodeColor::Black;
+                                    u_node.borrow_mut().color = NodeColor::Black;
+                                    gp_node.borrow_mut().color = NodeColor::Red;
+                                    return insert_balance(&p_node.borrow().parent);
+                                } else {
+                                    match x_dir {
+                                        Direction::Left => {
+                                            x_node.borrow_mut().color = NodeColor::Black;
+                                            gp_node.borrow_mut().color = NodeColor::Red;
+                                            left_rotate(&x_node.borrow().parent);
+                                            return right_rotate(&p_node.borrow().parent);
+                                        }
+                                        Direction::Right => {
+                                            gp_node.borrow_mut().color = NodeColor::Red;
+                                            p_node.borrow_mut().color = NodeColor::Black;
+                                            return right_rotate(&p_node.borrow().parent);
+                                        }
+                                    }
+                                }
                             } else {
                                 match x_dir {
                                     Direction::Left => {
@@ -221,55 +239,42 @@ fn insert_balance(x: &RedBlackTree)->RedBlackTree {
                                     }
                                 }
                             }
-                        }else {
-                            match x_dir {
-                                Direction::Left => {
-                                    x_node.borrow_mut().color = NodeColor::Black;
-                                    gp_node.borrow_mut().color = NodeColor::Red;
-                                    left_rotate(&x_node.borrow().parent);
-                                    return right_rotate(&p_node.borrow().parent);
-                                }
-                                Direction::Right => {
-                                    gp_node.borrow_mut().color = NodeColor::Red;
-                                    p_node.borrow_mut().color = NodeColor::Black;
-                                    return right_rotate(&p_node.borrow().parent);
-                                }
-                            }
                         }
-                    }else {
-                        if let Some(ref u_node) = gp_node.clone().borrow().left.clone() {
-                            if u_node.borrow().color == NodeColor::Red {
-                                p_node.borrow_mut().color = NodeColor::Black;
-                                u_node.borrow_mut().color = NodeColor::Black;
-                                gp_node.borrow_mut().color = NodeColor::Red;
-                                return insert_balance(&p_node.borrow().parent);
+                        Direction::Right => {
+                            if let Some(ref u_node) = gp_node.clone().borrow().left.clone() {
+                                if u_node.borrow().color == NodeColor::Red {
+                                    p_node.borrow_mut().color = NodeColor::Black;
+                                    u_node.borrow_mut().color = NodeColor::Black;
+                                    gp_node.borrow_mut().color = NodeColor::Red;
+                                    return insert_balance(&p_node.borrow().parent);
+                                } else {
+                                    match x_dir {
+                                        Direction::Left => {
+                                            gp_node.borrow_mut().color = NodeColor::Red;
+                                            p_node.borrow_mut().color = NodeColor::Black;
+                                            return left_rotate(&p_node.borrow().parent);
+                                        }
+                                        Direction::Right => {
+                                            x_node.borrow_mut().color = NodeColor::Black;
+                                            gp_node.borrow_mut().color = NodeColor::Red;
+                                            right_rotate(&x_node.borrow().parent);
+                                            return left_rotate(&p_node.borrow().parent);
+                                        }
+                                    }
+                                }
                             } else {
                                 match x_dir {
                                     Direction::Left => {
-                                        gp_node.borrow_mut().color = NodeColor::Red;
-                                        p_node.borrow_mut().color = NodeColor::Black;
-                                        return left_rotate(&p_node.borrow().parent);
-                                    }
-                                    Direction::Right => {
                                         x_node.borrow_mut().color = NodeColor::Black;
                                         gp_node.borrow_mut().color = NodeColor::Red;
-                                        right_rotate(&x_node.borrow().parent);
-                                        return left_rotate(&p_node.borrow().parent);
+                                        left_rotate(&x_node.borrow().parent);
+                                        return right_rotate(&p_node.borrow().parent);
                                     }
-                                }
-                            }
-                        }else{
-                            match x_dir {
-                                Direction::Left => {
-                                    x_node.borrow_mut().color = NodeColor::Black;
-                                    gp_node.borrow_mut().color = NodeColor::Red;
-                                    left_rotate(&x_node.borrow().parent);
-                                    return right_rotate(&p_node.borrow().parent);
-                                }
-                                Direction::Right => {
-                                    gp_node.borrow_mut().color = NodeColor::Red;
-                                    p_node.borrow_mut().color = NodeColor::Black;
-                                    return right_rotate(&p_node.borrow().parent);
+                                    Direction::Right => {
+                                        gp_node.borrow_mut().color = NodeColor::Red;
+                                        p_node.borrow_mut().color = NodeColor::Black;
+                                        return right_rotate(&p_node.borrow().parent);
+                                    }
                                 }
                             }
                         }
@@ -291,7 +296,7 @@ fn get_child(opt_node: RedBlackTree, direction: Direction) -> RedBlackTree {
     None
 }
 
-fn left_rotate(y: &RedBlackTree)-> RedBlackTree {
+fn left_rotate(y: &RedBlackTree) -> RedBlackTree {
     let node_y = y.clone();
     if let Some(y_node) = y {
         let z = y_node.borrow_mut().parent.take();
@@ -311,7 +316,7 @@ fn left_rotate(y: &RedBlackTree)-> RedBlackTree {
                 } else {
                     z_node.borrow_mut().right = Some(x_node);
                 }
-            }else{
+            } else {
                 return Some(x_node);
             }
         }
@@ -319,7 +324,7 @@ fn left_rotate(y: &RedBlackTree)-> RedBlackTree {
     None
 }
 
-fn right_rotate(y: &RedBlackTree)->RedBlackTree {
+fn right_rotate(y: &RedBlackTree) -> RedBlackTree {
     let node_y = y.clone();
     if let Some(y_node) = y {
         let z = y_node.borrow_mut().parent.take();
@@ -339,7 +344,7 @@ fn right_rotate(y: &RedBlackTree)->RedBlackTree {
                 } else {
                     z_node.borrow_mut().right = Some(x_node);
                 }
-            }else{
+            } else {
                 return Some(x_node);
             }
         }
@@ -386,7 +391,6 @@ fn main() {
     remove_node(rb_tree.clone(), 500);
     print_tree(&rb_tree.clone(), 0);
     // rb_tree = left_rotate(rb_tree).unwrap();
-    
 }
 
 // impl <T: Ord> TreeNode<T>{
@@ -413,12 +417,12 @@ fn main() {
 // }
 // }
 
-// 
+//
 // Swap commented code to allow null prints to help clarify which children are left and right nodes
 // Could probably implement both versions as an added feature
-fn print_tree(rb_tree: &RedBlackTree, cur_level:usize){
+fn print_tree(rb_tree: &RedBlackTree, cur_level: usize) {
     // for i in 0..cur_level {
-            
+
     //     let pad: &str;
     //     if i == cur_level-1{
     //         pad = " |→";
@@ -431,14 +435,13 @@ fn print_tree(rb_tree: &RedBlackTree, cur_level:usize){
     // dfs, with tabs for each level - 1
     if let Some(node) = rb_tree {
         for i in 0..cur_level {
-            
             let pad: &str;
-            if i == cur_level-1{
+            if i == cur_level - 1 {
                 pad = " |→";
             } else {
                 pad = " |  ";
             }
-            print!("{}",pad.on_white());
+            print!("{}", pad.on_white());
         }
         // let _ = std::iter::repeat(print!("-")).take(cur_level);
         let msg = format!(" {} ", node.borrow().key);
@@ -447,12 +450,10 @@ fn print_tree(rb_tree: &RedBlackTree, cur_level:usize){
         } else {
             println!("{:}", msg.red().on_white());
         }
-        
-        print_tree(&node.borrow().left, cur_level+1);
-        print_tree(&node.borrow().right, cur_level+1)
+
+        print_tree(&node.borrow().left, cur_level + 1);
+        print_tree(&node.borrow().right, cur_level + 1)
     } else {
         // println!();
     }
-
-    
 }
