@@ -275,64 +275,6 @@ fn main() {
 
     // rb_tree = left_rotate(rb_tree).unwrap();
     
-    // println!("{:?}", rb_tree.clone().unwrap().borrow().key);
-    // println!(
-    //     "{:?}",
-    //     get_child(rb_tree.clone(), Direction::Right)
-    //         .unwrap()
-    //         .borrow()
-    //         .key
-    // );
-    // println!(
-    //     "{:?}",
-    //     get_child(rb_tree.clone(), Direction::Left)
-    //         .unwrap()
-    //         .borrow()
-    //         .key
-    // );
-    // println!(
-    //     "{:?}",
-    //     rb_tree
-    //         .clone()
-    //         .unwrap()
-    //         .borrow()
-    //         .right
-    //         .clone()
-    //         .unwrap()
-    //         .borrow()
-    //         .key
-    // );
-    // println!(
-    //     "{:?}",
-    //     rb_tree
-    //         .clone()
-    //         .unwrap()
-    //         .borrow()
-    //         .left
-    //         .clone()
-    //         .unwrap()
-    //         .borrow()
-    //         .key
-    // );
-    // println!(
-    //     "{:?}",
-    //     get_child(
-    //         get_child(rb_tree.clone(), Direction::Left),
-    //         Direction::Right
-    //     )
-    //     .unwrap()
-    //     .borrow()
-    //     .key
-    // );
-
-    // let val = find_key(rb_tree, 50);
-    // println!("{:?}", val.unwrap().borrow().key);
-    // if let Some(v) = val {
-    //     println!("Yay")
-    // } else {
-    //     println!("Boo")
-    // }
-    // println!("{:?}", f.clone().unwrap().borrow().key)
 }
 
 // impl <T: Ord> TreeNode<T>{
