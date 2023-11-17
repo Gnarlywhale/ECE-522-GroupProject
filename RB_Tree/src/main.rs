@@ -2,6 +2,7 @@ use binary_lib::*;
 use colored::*;
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::env;
 
 #[derive(Clone, Debug, PartialEq)]
 enum NodeColor {
@@ -90,8 +91,10 @@ fn in_order_successor(rb_tree: RedBlackTree) -> RedBlackTree {
     }
     None
 }
-fn remove_node(rb_tree: RedBlackTree, data: u32) {
-    if let Some(node) = find_key(rb_tree, data) {
+
+// TODO double check edge cases! i.e. 1 node tree
+fn remove_node(mut rb_tree: RedBlackTree, data: u32) -> RedBlackTree{
+    if let Some(node) = find_key(rb_tree.clone(), data) {
         // Handle terminal node case
         let node_key = node.borrow().key.clone();
         if node.borrow().left.is_none() && node.borrow().right.is_none() {
@@ -102,31 +105,44 @@ fn remove_node(rb_tree: RedBlackTree, data: u32) {
                 } else {
                     p_node.borrow_mut().right = None;
                 }
-                return;
+                return rb_tree;
+            } else {
+                return None
             }
         } else if node.borrow().left.is_none() && node.borrow().right.is_some() {
             // One right child
-            let rep_node = &node.borrow().right;
-            let parent = &node.borrow().parent;
+            let rep_node = node.borrow().right.clone();
+            let parent = node.borrow().parent.clone();
             if let Some(p_node) = parent {
                 if node_key < p_node.borrow().key {
                     p_node.borrow_mut().left = rep_node.clone();
                 } else {
                     p_node.borrow_mut().right = rep_node.clone();
                 }
-                return;
+  
             }
+            else { 
+                node.borrow_mut().key = rep_node.unwrap().borrow().key;
+                node.borrow_mut().parent = None;
+                node.borrow_mut().left = None;
+                node.borrow_mut().right = None
+             }
         } else if node.borrow().left.is_some() && node.borrow().right.is_none() {
             // One left child
-            let rep_node = &node.borrow().left;
-            let parent = &node.borrow().parent;
+            let rep_node = node.borrow().left.clone();
+            let parent = node.borrow().parent.clone();
             if let Some(p_node) = parent {
                 if node_key < p_node.borrow().key {
                     p_node.borrow_mut().left = rep_node.clone();
                 } else {
                     p_node.borrow_mut().right = rep_node.clone();
                 }
-                return;
+        
+            } else { 
+               node.borrow_mut().key = rep_node.unwrap().borrow().key;
+               node.borrow_mut().parent = None;
+               node.borrow_mut().left = None;
+               node.borrow_mut().right = None
             }
         } else {
             if let Some(rep_node) = in_order_successor(Some(node.clone())) {
@@ -144,6 +160,7 @@ fn remove_node(rb_tree: RedBlackTree, data: u32) {
             }
         }
     }
+    return rb_tree;
 }
 fn insert_node(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
     if let Some(node) = rb_tree {
@@ -365,11 +382,13 @@ fn right_rotate(y: &RedBlackTree) -> RedBlackTree {
 // 7- Print the tree showing its colors and structure. (Using println!(“{:#?}”,tree); is NOT
 // sufficient)
 fn main() {
+                   // uncomment for more verbose error messages
+                // env::set_var("RUST_BACKTRACE", "1");
     let mut rb_tree = new_rb_tree(42);
-    rb_tree = insert(rb_tree, 30);
-    rb_tree = insert(rb_tree, 500);
-    print_tree(&rb_tree, 0);
-    rb_tree = insert(rb_tree, 45);
+    // rb_tree = insert(rb_tree, 30);
+    // rb_tree = insert(rb_tree, 500);
+    // print_tree(&rb_tree, 0);
+    // rb_tree = insert(rb_tree, 45);
     // rb_tree = insert(rb_tree, 55);
     // rb_tree = insert(rb_tree, 20);
     // rb_tree = insert(rb_tree, 35);
@@ -382,10 +401,40 @@ fn main() {
     // rb_tree = right_rotate(&rb_tree);
     // let print_node = find_key(rb_tree.clone(), 20);
     // print_tree(&print_node,0);
+
+
+    // Edge case delete testing
+    let mut smol_tree = new_rb_tree(42);
+    println!("Delete root for left node");
+    smol_tree = insert_node(smol_tree, 40);
+    print_tree(&smol_tree, 0);
+    smol_tree = remove_node(smol_tree, 42);
+    print_tree(&smol_tree, 0);
+    println!("Delete root for right node");
+smol_tree = insert_node(smol_tree, 50);
+print_tree(&smol_tree, 0);
+smol_tree = remove_node(smol_tree, 40);
+    print_tree(&smol_tree, 0);
+    println!("Delete root for no node");
+    smol_tree = remove_node(smol_tree, 50);
+    print_tree(&smol_tree, 0);
+    println!("Done edge case testing");
+    let mut rb_tree = new_rb_tree(42);
+    rb_tree = insert_node(rb_tree, 500);
+    rb_tree = insert_node(rb_tree, 30);
+    rb_tree = insert_node(rb_tree, 45);
+    rb_tree = insert_node(rb_tree, 55);
+    rb_tree = insert_node(rb_tree, 20);
+    rb_tree = insert_node(rb_tree, 35);
+    rb_tree = insert_node(rb_tree, 33);
+    rb_tree = insert_node(rb_tree, 31);
+    rb_tree = insert_node(rb_tree, 34);
+    rb_tree = insert_node(rb_tree, 36);
+    rb_tree = insert_node(rb_tree, 3);
+    rb_tree = insert_node(rb_tree, 25);
     println!("Sample Tree:");
     print_tree(&rb_tree.clone(), 0);
-    println!("Removing node with multiple children: 30");
-    remove_node(rb_tree.clone(), 30);
+    rb_tree = remove_node(rb_tree.clone(), 30);
     println!("Should now show 31 in place of 30, and have 30 removed (in-order successor)");
     print_tree(&rb_tree.clone(), 0);
     println!("Deleting terminal node: 25");
