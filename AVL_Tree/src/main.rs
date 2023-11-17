@@ -27,11 +27,11 @@ impl <T: Ord> TreeNode<T>{
     }
 }
 
-fn new_avl_tree(data: u32) -> AVLTree {
+fn new_avl_tree(data: u32) -> Option<Tree> {
     Some(Rc::new(RefCell::new(TreeNode::new(data))))
 }
 
-fn find_key(avl_tree: AVLTree, data: u32) -> AVLTree {
+fn find_key(avl_tree: Option<Tree>, data: u32) -> Option<Tree> {
     if let Some(node) = avl_tree.clone() {
         if data == node.borrow().key {
             return avl_tree;
@@ -50,21 +50,22 @@ fn find_key(avl_tree: AVLTree, data: u32) -> AVLTree {
 }
 
 // Insert the newly added node into this function
-fn rebalance_factor(avl_tree: AVLTree) {
+fn rebalance_factor(avl_tree: &Option<Tree>) {
     if let Some(node) = avl_tree {
-        if let Some(parent) = &node.borrow().parent {
-            let mut temp_parent = parent.borrow_mut();
-            let left_height = tree_height(&temp_parent.left);
-            let right_height = tree_height(&temp_parent.right);
+        let ancestor = &node.borrow().parent;
+        if let Some(parent) = ancestor {
+            let left_height = tree_height(&parent.borrow().left);
+            let right_height = tree_height(&parent.borrow().right);
             let balance_factor = left_height - right_height;
             // Add calculations to change the balance factors here
-            temp_parent.balance_factor = balance_factor;
-            rebalance_factor(temp_parent.parent.clone());
+            println!("the balance factor is {}", balance_factor.clone());
+            parent.borrow_mut().balance_factor = balance_factor;
+            rebalance_factor(ancestor);
         }
     }
 }
 
-fn insert_node(avl_tree: AVLTree, data: u32) -> AVLTree {
+fn insert_node(avl_tree: Option<Tree>, data: u32) -> Option<Tree> {
     if let Some(node) = avl_tree {
         if data < node.borrow().key {
             let left = node.borrow_mut().left.take();
@@ -92,7 +93,7 @@ fn insert_node(avl_tree: AVLTree, data: u32) -> AVLTree {
     }
 }
 
-fn count_leaves(avl_tree: &AVLTree) -> i32 {
+fn count_leaves(avl_tree: &Option<Tree>) -> i32 {
     if let Some(node) = avl_tree {
         if node.borrow().left.is_none() && node.borrow().right.is_none() {
             return 1
@@ -106,7 +107,7 @@ fn count_leaves(avl_tree: &AVLTree) -> i32 {
     }
 }
 
-fn tree_height(avl_tree: &AVLTree) -> i32 {
+fn tree_height(avl_tree: &Option<Tree>) -> i32 {
     if let Some(node) = avl_tree {
         if node.borrow().left.is_none() && node.borrow().right.is_none() {
             return 1
@@ -122,7 +123,7 @@ fn tree_height(avl_tree: &AVLTree) -> i32 {
     }
 }
 
-fn in_order_traversal(avl_tree: &AVLTree, keys: &mut Vec<u32>) {
+fn in_order_traversal(avl_tree: &Option<Tree>, keys: &mut Vec<u32>) {
     if let Some(node) = avl_tree {
         let node_borrow = node.borrow();
         keys.push(node_borrow.key);
@@ -136,7 +137,7 @@ fn in_order_traversal(avl_tree: &AVLTree, keys: &mut Vec<u32>) {
     }
 }
 
-fn check_if_empty(avl_tree: &AVLTree) -> Result<(),()> {
+fn check_if_empty(avl_tree: &Option<Tree>) -> Result<(),()> {
     if avl_tree.is_some() {
         return Ok(())
     }
@@ -145,7 +146,7 @@ fn check_if_empty(avl_tree: &AVLTree) -> Result<(),()> {
     }
 }
 
-fn print_tree(avl_tree: &AVLTree, cur_level:usize){
+fn print_tree(avl_tree: &Option<Tree>, cur_level:usize){
     // dfs, with tabs for each level - 1
     if let Some(node) = avl_tree {
         for _ in 0..cur_level {
@@ -161,21 +162,30 @@ fn print_tree(avl_tree: &AVLTree, cur_level:usize){
     }
 }
 
-/* 
 // Insert the node to delete into this function
-fn right_left_child(avl_tree: &AVLTree) -> Option<TreeNode<u32>> {
+fn in_order_successor(avl_tree: Option<Tree>) -> Option<Tree> {
     if let Some(node) = avl_tree {
-        let mut node_borrow = node.borrow();
-        while let Some(left_node) = node_borrow.left.as_ref() {
-            node_borrow = left_node.borrow();
+        let mut node_borrow = node.borrow().right.clone().unwrap();
+        while let Some(left_child) = node_borrow.clone().borrow().left.clone() {
+            node_borrow = left_child.clone()
         }
-        Some(node.clone())
+        return Some(node_borrow.clone())
     }
-    else {
-        None
-    }
+    None
 }
 
+fn remove_node( avl_tree: Option<Tree>, key: u32) {
+    if let Some(node) = find_key(avl_tree, key) {
+        //No children delete
+
+        //Right child delete
+
+        //Left child delete
+
+        //Two children delete
+    }
+}
+/*
 // This isnt complete yet
 fn tree_layers(avl_tree: &AVLTree, counter: u32, string_vec: &mut Vec<String>) {
     if avl_tree.is_some() {
@@ -214,9 +224,14 @@ fn main() {
     avl_tree = insert_node(avl_tree, 15);
     let leaf_count = count_leaves(&avl_tree);
     let tree_height = tree_height(&avl_tree);
+    let node_1 = find_key(avl_tree.clone(), 6);
+    rebalance_factor(&node_1);
+    let node_2 = find_key(avl_tree.clone(), 37);
+    rebalance_factor(&node_2);
     println!("{}",leaf_count);
     println!("{}",tree_height);
     let mut keys: Vec<u32> = Vec::new();
     in_order_traversal(&avl_tree, &mut keys);
     print_tree(&avl_tree, 0);
+    let result = check_if_empty(&avl_tree);
 }
