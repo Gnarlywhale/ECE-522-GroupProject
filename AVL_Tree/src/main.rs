@@ -174,17 +174,86 @@ fn in_order_successor(avl_tree: Option<Tree>) -> Option<Tree> {
     None
 }
 
-fn remove_node( avl_tree: Option<Tree>, key: u32) {
-    if let Some(node) = find_key(avl_tree, key) {
+fn remove_node(mut avl_tree: Option<Tree>, key: u32) -> Option<Tree> {
+    if let Some(node) = find_key(avl_tree.clone(), key) {
+        let node_key = node.borrow().key.clone();
+        let parent = &node.borrow().parent.clone();
         //No children delete
-
+        if node.borrow().left.is_none() && node.borrow().right.is_none() {
+            //Handle the case where deleted node is not the root
+            if let Some(p_node) = parent {
+                if node_key < p_node.borrow().key {
+                    p_node.borrow_mut().left = None;
+                }
+                else if node_key > p_node.borrow().key {
+                    p_node.borrow_mut().right = None;
+                }
+                return avl_tree
+            }
+            //Handle the case where the deleted node is the root
+            else {
+                return None
+            }
+        }
         //Right child delete
-
+        if node.borrow().left.is_none() && !node.borrow().right.is_none() {
+            let rep_node = node.borrow().right.clone();
+            //Handle the case where the deleted node is not the root
+            if let Some(p_node) = parent {
+                if node_key < p_node.borrow().key {
+                    p_node.borrow_mut().left = rep_node.clone();
+                }
+                else if node_key > p_node.borrow().key {
+                    p_node.borrow_mut().right = rep_node.clone();
+                }
+            }
+            //Handle the case where the deleted node is the root
+            else {
+                node.borrow_mut().key = rep_node.unwrap().borrow().key;
+                node.borrow_mut().parent = None;
+                node.borrow_mut().left = None;
+                node.borrow_mut().right = None;
+            }
+        }
         //Left child delete
-
+        if !node.borrow().left.is_none() && node.borrow().right.is_none() {
+            let rep_node = node.borrow().left.clone();
+            //Handle the case where the deleted node is not the root
+            if let Some(p_node) = parent {
+                if node_key < p_node.borrow().key {
+                    p_node.borrow_mut().left = rep_node.clone();
+                }
+                else if node_key > p_node.borrow().key {
+                    p_node.borrow_mut().right = rep_node.clone();
+                }
+            }
+            //Handle the case where the deleted node is the root
+            else {
+                node.borrow_mut().key = rep_node.unwrap().borrow().key;
+                node.borrow_mut().parent = None;
+                node.borrow_mut().left = None;
+                node.borrow_mut().right = None;
+            }
+        }
         //Two children delete
+        if !node.borrow().left.is_none() && !node.borrow().right.is_none() {
+            if let Some(rep_node) = in_order_successor(Some(node.clone())) {
+                node.borrow_mut().key = rep_node.clone().borrow().key;
+                let rep_node_parent = &rep_node.borrow().parent;
+                if let Some(p_node) = rep_node_parent {
+                    if rep_node.clone().borrow().key < p_node.clone().borrow().key {
+                        p_node.clone().borrow_mut().left = None;
+                    }
+                    else if rep_node.clone().borrow().key > p_node.clone().borrow().key {
+                        p_node.clone().borrow_mut().right = None;
+                    }
+                }
+            }
+        }
     }
+    return avl_tree
 }
+
 /*
 // This isnt complete yet
 fn tree_layers(avl_tree: &AVLTree, counter: u32, string_vec: &mut Vec<String>) {
@@ -209,13 +278,15 @@ fn tree_layers(avl_tree: &AVLTree, counter: u32, string_vec: &mut Vec<String>) {
 
 // TO IMPLEMENT
 // 1- DONE: Insert a node to the AVL tree.
-// 2- Delete a node from the AVL tree.
+// 2- DONE: Delete a node from the AVL tree.
 // 3- DONE: Count the number of leaves in a tree.
 // 4- DONE: Return the height of a tree.
 // 5- DONE: Print In-order traversal of the tree.  -> Starting from root, then all lefts  
 // 6- DONE: Check if the tree is empty.
-// 7- Print the tree showing its structure. (Using println!(“{:#?}”,tree); is NOT
-// sufficient)
+// 7- DONE: Print the tree showing its structure. (Using println!(“{:#?}”,tree); is NOT
+// sufficient).
+// 8- Rebalance the tree for insert and delete.
+
 fn main() {
     let mut avl_tree = new_avl_tree(25);
     avl_tree = insert_node(avl_tree, 12);
@@ -234,4 +305,6 @@ fn main() {
     in_order_traversal(&avl_tree, &mut keys);
     print_tree(&avl_tree, 0);
     let result = check_if_empty(&avl_tree);
+    let mut avl_tree = remove_node(avl_tree, 25);
+    print_tree(&avl_tree, 0);
 }
