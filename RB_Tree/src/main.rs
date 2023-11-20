@@ -152,9 +152,9 @@ fn remove_node(mut rb_tree: RedBlackTree, data: u32) -> RedBlackTree{
                 let parent = &rep_node.borrow().parent;
                 if let Some(p_node) = parent {
                     if rep_node.clone().borrow().key < p_node.clone().borrow().key {
-                        p_node.clone().borrow_mut().left = None
+                        p_node.clone().borrow_mut().left = None;
                     } else {
-                        p_node.clone().borrow_mut().right = None
+                        p_node.clone().borrow_mut().right = None;
                     }
                 }
             }

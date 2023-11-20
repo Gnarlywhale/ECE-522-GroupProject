@@ -52,14 +52,13 @@ fn find_key(avl_tree: Option<Tree>, data: u32) -> Option<Tree> {
 // Insert the newly added node into this function
 fn rebalance_factor(avl_tree: &Option<Tree>) {
     if let Some(node) = avl_tree {
+        let left_height = tree_height(&node.clone().borrow().left);
+        let right_height = tree_height(&node.clone().borrow().right);
+        let balance_factor = left_height - right_height;
+        println!("the balance factor is {}", balance_factor.clone());
+        node.borrow_mut().balance_factor = balance_factor;
         let ancestor = &node.borrow().parent;
         if let Some(parent) = ancestor {
-            let left_height = tree_height(&parent.borrow().left);
-            let right_height = tree_height(&parent.borrow().right);
-            let balance_factor = left_height - right_height;
-            // Add calculations to change the balance factors here
-            println!("the balance factor is {}", balance_factor.clone());
-            parent.borrow_mut().balance_factor = balance_factor;
             rebalance_factor(ancestor);
         }
     }
@@ -184,9 +183,11 @@ fn remove_node(mut avl_tree: Option<Tree>, key: u32) -> Option<Tree> {
             if let Some(p_node) = parent {
                 if node_key < p_node.borrow().key {
                     p_node.borrow_mut().left = None;
+                    rebalance_factor(parent);
                 }
                 else if node_key > p_node.borrow().key {
                     p_node.borrow_mut().right = None;
+                    rebalance_factor(parent);
                 }
                 return avl_tree
             }
@@ -202,9 +203,11 @@ fn remove_node(mut avl_tree: Option<Tree>, key: u32) -> Option<Tree> {
             if let Some(p_node) = parent {
                 if node_key < p_node.borrow().key {
                     p_node.borrow_mut().left = rep_node.clone();
+                    rebalance_factor(parent);
                 }
                 else if node_key > p_node.borrow().key {
                     p_node.borrow_mut().right = rep_node.clone();
+                    rebalance_factor(parent);
                 }
             }
             //Handle the case where the deleted node is the root
@@ -222,9 +225,11 @@ fn remove_node(mut avl_tree: Option<Tree>, key: u32) -> Option<Tree> {
             if let Some(p_node) = parent {
                 if node_key < p_node.borrow().key {
                     p_node.borrow_mut().left = rep_node.clone();
+                    rebalance_factor(parent);
                 }
                 else if node_key > p_node.borrow().key {
                     p_node.borrow_mut().right = rep_node.clone();
+                    rebalance_factor(parent);
                 }
             }
             //Handle the case where the deleted node is the root
@@ -241,11 +246,11 @@ fn remove_node(mut avl_tree: Option<Tree>, key: u32) -> Option<Tree> {
                 node.borrow_mut().key = rep_node.clone().borrow().key;
                 let rep_node_parent = &rep_node.borrow().parent;
                 if let Some(p_node) = rep_node_parent {
-                    if rep_node.clone().borrow().key < p_node.clone().borrow().key {
-                        p_node.clone().borrow_mut().left = None;
+                    if rep_node.borrow().key < p_node.clone().borrow().key {
+                        p_node.borrow_mut().left = None;
                     }
-                    else if rep_node.clone().borrow().key > p_node.clone().borrow().key {
-                        p_node.clone().borrow_mut().right = None;
+                    else if rep_node.borrow().key > p_node.clone().borrow().key {
+                        p_node.borrow_mut().right = None;
                     }
                 }
             }
