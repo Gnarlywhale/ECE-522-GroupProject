@@ -13,6 +13,7 @@ enum NodeColor {
 enum Direction {
     Right,
     Left,
+    Root,
 }
 type Tree = Rc<RefCell<TreeNode<u32>>>;
 type RedBlackTree = Option<Tree>;
@@ -92,11 +93,15 @@ fn in_order_successor(rb_tree: RedBlackTree) -> RedBlackTree {
     None
 }
 
+// remove node returns the tree root and a pointer to the newly inserted node (also a tree)
+
 // TODO double check edge cases! i.e. 1 node tree
-fn remove_node(mut rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
+fn remove_node(mut rb_tree: RedBlackTree, data: u32) -> (RedBlackTree, RedBlackTree) {
+    let mut replacement_node: Option<Rc<RefCell<TreeNode<u32>>>> = None;
     if let Some(node) = find_key(rb_tree.clone(), data) {
         // Handle terminal node case
         let node_key = node.borrow().key.clone();
+        
         if node.borrow().left.is_none() && node.borrow().right.is_none() {
             let parent = &node.borrow().parent;
             if let Some(p_node) = parent {
@@ -105,13 +110,14 @@ fn remove_node(mut rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
                 } else {
                     p_node.borrow_mut().right = None;
                 }
-                return rb_tree;
+                return (rb_tree, None) ;
             } else {
-                return None;
+                return (None, None);
             }
         } else if node.borrow().left.is_none() && node.borrow().right.is_some() {
             // One right child
             let rep_node = node.borrow().right.clone();
+            replacement_node = rep_node.clone();
             let parent = node.borrow().parent.clone();
             if let Some(p_node) = parent {
                 if node_key < p_node.borrow().key {
@@ -120,14 +126,15 @@ fn remove_node(mut rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
                     p_node.borrow_mut().right = rep_node.clone();
                 }
             } else {
-                node.borrow_mut().key = rep_node.unwrap().borrow().key;
+                node.borrow_mut().key = rep_node.clone().unwrap().borrow().key;
                 node.borrow_mut().parent = None;
                 node.borrow_mut().left = None;
                 node.borrow_mut().right = None
             }
         } else if node.borrow().left.is_some() && node.borrow().right.is_none() {
             // One left child
-            let rep_node = node.borrow().left.clone();
+             let rep_node = node.borrow().left.clone();
+             replacement_node = rep_node.clone();
             let parent = node.borrow().parent.clone();
             if let Some(p_node) = parent {
                 if node_key < p_node.borrow().key {
@@ -136,7 +143,7 @@ fn remove_node(mut rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
                     p_node.borrow_mut().right = rep_node.clone();
                 }
             } else {
-                node.borrow_mut().key = rep_node.unwrap().borrow().key;
+                node.borrow_mut().key = rep_node.clone().unwrap().borrow().key;
                 node.borrow_mut().parent = None;
                 node.borrow_mut().left = None;
                 node.borrow_mut().right = None
@@ -144,6 +151,7 @@ fn remove_node(mut rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
         } else {
             if let Some(rep_node) = in_order_successor(Some(node.clone())) {
                 // Set the parent key to match the rep_node key
+                replacement_node = Some(rep_node.clone());
                 let temp_key = rep_node.clone().borrow().key;
                 // Remove the reference from the replacement node's parent to the replacement node
                 let parent = &rep_node.borrow().parent;
@@ -159,8 +167,10 @@ fn remove_node(mut rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
             }
         }
     }
-    return rb_tree;
+    
+    return (rb_tree, replacement_node);
 }
+
 fn insert_node(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
     if let Some(node) = rb_tree {
         if data == node.borrow().key {
@@ -208,6 +218,7 @@ fn insert(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
                     return root;
                 }
             }
+            Direction::Root => {}
         }
     }
     return new_tree;
@@ -236,6 +247,7 @@ fn insert_balance(x: &RedBlackTree) -> Vec<(Direction, u32)> {
                         }
                     }
                     match p_dir {
+                        Direction::Root => {}
                         Direction::Left => {
                             let u = gp_node.clone().borrow().right.clone();
                             if let Some(ref u_node) = u {
@@ -262,6 +274,7 @@ fn insert_balance(x: &RedBlackTree) -> Vec<(Direction, u32)> {
                                             rotate.push((Direction::Right, gp_node.borrow().key));
                                             return rotate;
                                         }
+                                        Direction::Root => {}
                                     }
                                 }
                             } else {
@@ -281,6 +294,7 @@ fn insert_balance(x: &RedBlackTree) -> Vec<(Direction, u32)> {
                                         rotate.push((Direction::Right, gp_node.borrow().key));
                                         return rotate;
                                     }
+                                    Direction::Root => {}
                                 }
                             }
                         }
@@ -295,6 +309,7 @@ fn insert_balance(x: &RedBlackTree) -> Vec<(Direction, u32)> {
                                     return insert_balance(&p_node.clone().borrow().parent);
                                 } else {
                                     match x_dir {
+                                        Direction::Root => {}
                                         Direction::Right => {
                                             gp_node.borrow_mut().color = NodeColor::Red;
                                             p_node.clone().borrow_mut().color = NodeColor::Black;
@@ -314,6 +329,7 @@ fn insert_balance(x: &RedBlackTree) -> Vec<(Direction, u32)> {
                                 }
                             } else {
                                 match x_dir {
+                                    Direction::Root => {}
                                     Direction::Right => {
                                         gp_node.borrow_mut().color = NodeColor::Red;
                                         p_node.clone().borrow_mut().color = NodeColor::Black;
@@ -343,11 +359,25 @@ fn insert_balance(x: &RedBlackTree) -> Vec<(Direction, u32)> {
 fn get_child(opt_node: RedBlackTree, direction: Direction) -> RedBlackTree {
     if let Some(node) = opt_node {
         match direction {
+            Direction::Root => {}
             Direction::Right => return node.borrow().right.clone(),
             Direction::Left => return node.borrow().left.clone(),
         }
     }
     None
+}
+fn get_sibling(opt_node: RedBlackTree) -> (RedBlackTree, Direction) {
+    if let Some(node) = opt_node {
+        let parent = &node.borrow().parent;
+        if let Some(p_node) = parent {
+            if node.borrow().key < p_node.borrow().key {
+                return (p_node.borrow().right.clone(), Direction::Right)
+            } else {
+                return (p_node.borrow().left.clone(), Direction::Left)
+            }
+        }
+    }
+    return (None, Direction::Root)
 }
 
 fn left_rotate(y: &RedBlackTree) -> RedBlackTree {
@@ -444,76 +474,16 @@ fn main() {
     // rb_tree = insert(rb_tree, 11);
     // rb_tree = insert(rb_tree, 12);
     // rb_tree = insert(rb_tree, 13);
-    print_tree(&rb_tree, 0);
-    // let print_node = find_key(rb_tree.clone(), 20);
-    // print_tree(&print_node,0);
+     print_tree(&rb_tree, 0);
+    let mut rep_node;
+    (rb_tree,  rep_node) = remove_node(rb_tree, 6);
+    print_tree (&rep_node, 0);
+     // Sibling testing:
+    //  let (sibling, sib_direction) = get_sibling(find_key(rb_tree.clone(), 334));
+    // print_tree(&sibling,0);
+    // println!("{:?}", sib_direction)
 
-    // Edge case delete testing
-    //     let mut smol_tree = new_rb_tree(42);
-    //     println!("Delete root for left node");
-    //     smol_tree = insert_node(smol_tree, 40);
-    //     print_tree(&smol_tree, 0);
-    //     smol_tree = remove_node(smol_tree, 42);
-    //     print_tree(&smol_tree, 0);
-    //     println!("Delete root for right node");
-    // smol_tree = insert_node(smol_tree, 50);
-    // print_tree(&smol_tree, 0);
-    // smol_tree = remove_node(smol_tree, 40);
-    //     print_tree(&smol_tree, 0);
-    //     println!("Delete root for no node");
-    // smol_tree = remove_node(smol_tree, 50);
-    // print_tree(&smol_tree, 0);
-    // println!("Done edge case testing");
-    // let mut rb_tree = new_rb_tree(42);
-    // rb_tree = insert_node(rb_tree, 500);
-    // rb_tree = insert_node(rb_tree, 30);
-    // rb_tree = insert_node(rb_tree, 45);
-    // rb_tree = insert_node(rb_tree, 55);
-    // rb_tree = insert_node(rb_tree, 20);
-    // rb_tree = insert_node(rb_tree, 35);
-    // rb_tree = insert_node(rb_tree, 33);
-    // rb_tree = insert_node(rb_tree, 31);
-    // rb_tree = insert_node(rb_tree, 34);
-    // rb_tree = insert_node(rb_tree, 36);
-    // rb_tree = insert_node(rb_tree, 3);
-    // rb_tree = insert_node(rb_tree, 25);
-    // println!("Sample Tree:");
-    // print_tree(&rb_tree.clone(), 0);
-    // rb_tree = remove_node(rb_tree.clone(), 30);
-    // println!("Should now show 31 in place of 30, and have 30 removed (in-order successor)");
-    // print_tree(&rb_tree.clone(), 0);
-    // println!("Deleting terminal node: 25");
-    // remove_node(rb_tree.clone(), 25);
-    // print_tree(&rb_tree.clone(), 0);
-    // println!("Deleting single child node: 500");
-    // remove_node(rb_tree.clone(), 500);
-    // print_tree(&rb_tree.clone(), 0);
-    // rb_tree = left_rotate(rb_tree).unwrap();
 }
-
-// impl <T: Ord> TreeNode<T>{
-// fn new(data:T)-> Self {
-// fn new(data:T, node_parent:Option<TreeNode<u32>>)-> Self {
-// if let Some(np) = node_parent{
-//     Self {
-//         color: NodeColor::Red,
-//         key: data,
-//         parent: Some(Rc::new(RefCell::new(node_parent.unwrap()))),
-//         left: None,
-//         right: None,
-//     }
-// } else {
-//         Self {
-//             color: NodeColor::Red,
-//             key: data,
-//             parent: None,
-//             left: None,
-//             right: None,
-//         }
-// }
-
-// }
-// }
 
 //
 // Swap commented code to allow null prints to help clarify which children are left and right nodes
