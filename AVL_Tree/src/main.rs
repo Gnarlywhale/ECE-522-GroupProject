@@ -243,14 +243,16 @@ fn remove_node(mut avl_tree: Option<Tree>, key: u32) -> Option<Tree> {
         //Two children delete
         if !node.borrow().left.is_none() && !node.borrow().right.is_none() {
             if let Some(rep_node) = in_order_successor(Some(node.clone())) {
-                node.borrow_mut().key = rep_node.clone().borrow().key;
+                let temp_key = rep_node.clone().borrow().key;
                 let rep_node_parent = &rep_node.borrow().parent;
                 if let Some(p_node) = rep_node_parent {
                     if rep_node.borrow().key < p_node.clone().borrow().key {
                         p_node.borrow_mut().left = None;
+                        node.borrow_mut().key = temp_key;
                     }
                     else if rep_node.borrow().key > p_node.clone().borrow().key {
                         p_node.borrow_mut().right = None;
+                        node.borrow_mut().key = temp_key;
                     }
                 }
             }
