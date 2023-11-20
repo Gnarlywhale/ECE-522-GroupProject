@@ -144,14 +144,16 @@ fn remove_node(mut rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
         } else {
             if let Some(rep_node) = in_order_successor(Some(node.clone())) {
                 // Set the parent key to match the rep_node key
-                node.borrow_mut().key = rep_node.clone().borrow().key;
+                let temp_key = rep_node.clone().borrow().key;
                 // Remove the reference from the replacement node's parent to the replacement node
                 let parent = &rep_node.borrow().parent;
                 if let Some(p_node) = parent {
                     if rep_node.clone().borrow().key < p_node.clone().borrow().key {
                         p_node.clone().borrow_mut().left = None;
+                        node.borrow_mut().key = temp_key;
                     } else {
                         p_node.clone().borrow_mut().right = None;
+                        node.borrow_mut().key = temp_key;
                     }
                 }
             }
