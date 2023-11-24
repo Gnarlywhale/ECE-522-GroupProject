@@ -1,6 +1,6 @@
+use binary_lib::*;
 use std::cell::RefCell;
 use std::rc::Rc;
-use binary_lib::*;
 
 #[derive(Clone, Debug, PartialEq)]
 enum Direction {
@@ -22,8 +22,8 @@ struct TreeNode<T> {
     right: AVLTree,
 }
 
-impl <T: Ord> TreeNode<T>{
-    fn new(data:T)-> Self {
+impl<T: Ord> TreeNode<T> {
+    fn new(data: T) -> Self {
         Self {
             balance_factor: 0,
             key: data,
@@ -45,8 +45,7 @@ fn find_key(avl_tree: AVLTree, data: u32) -> AVLTree {
         }
         if data < node.borrow().key {
             let left = &node.borrow().left;
-            return find_key(left.clone(), data)
-            
+            return find_key(left.clone(), data);
         } else {
             let right = &node.borrow().right;
             return find_key(right.clone(), data);
@@ -59,12 +58,9 @@ fn find_key(avl_tree: AVLTree, data: u32) -> AVLTree {
 // Insert the newly added node into this function
 fn rebalance_factor(avl_tree: &AVLTree, data: u32) -> AVLTree {
     if let Some(node) = avl_tree.clone() {
-        println!("my key {}", node.borrow().key);
-        println!("my data {}", data);
         let left_height = tree_height(&node.clone().borrow().left.clone());
         let right_height = tree_height(&node.clone().borrow().right.clone());
         let balance_factor = left_height - right_height;
-        println!("{}", balance_factor);
         if balance_factor < -1 {
             //Either right right or right left case
             let right_node = node.clone().borrow().right.clone();
@@ -72,49 +68,56 @@ fn rebalance_factor(avl_tree: &AVLTree, data: u32) -> AVLTree {
             if data > key {
                 //Right-Right case
                 left_rotate(&avl_tree);
-                rebalance_factor(avl_tree, data)
-            }
-            else if data < key {
+                return rebalance_factor(avl_tree, data);
+            } else if data < key {
                 //Right-Left case
                 right_rotate(&right_node);
                 left_rotate(&avl_tree);
-                rebalance_factor(avl_tree, data)
+                return rebalance_factor(avl_tree, data);
             }
-
-        }
-        else if balance_factor > 1 {
+        } else if balance_factor > 1 {
             //Either left left or left right case
             let left_node = node.clone().borrow().left.clone();
             let key = left_node.clone().unwrap().borrow().key.clone();
             if data < key {
                 //Left-Left case
                 right_rotate(&avl_tree);
-                rebalance_factor(avl_tree, data)
-            }
-            else if data > key {
+                return rebalance_factor(avl_tree, data);
+            } else if data > key {
                 //Left-Right case
                 left_rotate(&left_node);
                 right_rotate(&avl_tree);
-                rebalance_factor(avl_tree, data)
+                return rebalance_factor(avl_tree, data);
             }
         }
         //println!("the balance factor is {}", balance_factor.clone());
         else {
             node.borrow_mut().balance_factor = balance_factor;
             let ancestor = &node.clone().borrow().parent.clone();
-            if let Some(parent) = ancestor {
-                rebalance_factor(ancestor, data);
+            if ancestor.is_some() {
+                return rebalance_factor(ancestor, data);
+            } else {
+                println!{"new root"};
+                print_tree(avl_tree, 0);
+                return avl_tree.clone();
             }
-            return ancestor.clone()
         }
     }
+    None
 }
 
 fn insert(avl_tree: AVLTree, data: u32) -> AVLTree {
     let new_tree = insert_node(avl_tree.clone(), data);
-    let new_node = find_key(new_tree, data);
-    rebalance_factor(&new_node, data);
-    return avl_tree
+    let new_node = find_key(new_tree.clone(), data);
+    let balance_tree = rebalance_factor(&new_node, data);
+    println!{"insertion complete"};
+    print_tree(&balance_tree, 0);
+    if balance_tree.is_some(){
+        println!("new tree");
+        return balance_tree;
+    }
+    println!("old tree");
+    return new_tree;
 }
 
 fn insert_node(avl_tree: AVLTree, data: u32) -> AVLTree {
@@ -127,8 +130,7 @@ fn insert_node(avl_tree: AVLTree, data: u32) -> AVLTree {
                 left_node.borrow_mut().parent = Some(node.clone());
                 //rebalance_factor(&avl_tree, data)
             }
-        }
-        else if data > node.borrow().key {
+        } else if data > node.borrow().key {
             let right = node.borrow_mut().right.take();
             let new_right = insert_node(right, data);
             node.borrow_mut().right = new_right;
@@ -136,17 +138,15 @@ fn insert_node(avl_tree: AVLTree, data: u32) -> AVLTree {
                 right_node.borrow_mut().parent = Some(node.clone());
                 //rebalance_factor(&avl_tree, data)
             }
+        } else {
+            return None;
         }
-        else {
-            return None
-        }
-        return Some(node)
-    }
-    else {
+        return Some(node);
+    } else {
         new_avl_tree(data.clone())
     }
 }
-/* 
+/*
 fn insert(avl_tree: AVLTree, data: u32) -> AVLTree {
     let new_tree = insert_node(avl_tree, data);
     let current_node = &find_key(new_tree.clone(),data);
@@ -159,30 +159,26 @@ fn insert(avl_tree: AVLTree, data: u32) -> AVLTree {
 fn count_leaves(avl_tree: &AVLTree) -> u32 {
     if let Some(node) = avl_tree {
         if node.borrow().left.is_none() && node.borrow().right.is_none() {
-            return 1
+            return 1;
+        } else {
+            return count_leaves(&node.borrow().left) + count_leaves(&node.borrow().right);
         }
-        else {
-            return count_leaves(&node.borrow().left) + count_leaves(&node.borrow().right)
-        }
-    }
-    else {
-        return 0
+    } else {
+        return 0;
     }
 }
 
 fn tree_height(avl_tree: &AVLTree) -> i32 {
     if let Some(node) = avl_tree {
         if node.borrow().left.is_none() && node.borrow().right.is_none() {
-            return 1
-        }
-        else {
+            return 1;
+        } else {
             let left_height = tree_height(&node.borrow().left);
             let right_height = tree_height(&node.borrow().right);
-            return 1 + i32::max(left_height, right_height)
+            return 1 + i32::max(left_height, right_height);
         }
-    }
-    else {
-        return 0
+    } else {
+        return 0;
     }
 }
 
@@ -192,7 +188,6 @@ fn in_order_traversal(avl_tree: &AVLTree, keys: &mut Vec<u32>) {
         keys.push(node_borrow.key);
         if node_borrow.left.is_none() && node_borrow.right.is_none() {
             println!("{:?}", keys);
-    
         }
         in_order_traversal(&node_borrow.left, keys);
         in_order_traversal(&node_borrow.right, keys);
@@ -200,28 +195,27 @@ fn in_order_traversal(avl_tree: &AVLTree, keys: &mut Vec<u32>) {
     }
 }
 
-fn check_if_empty(avl_tree: &Option<Tree>) -> Result<(),()> {
+fn check_if_empty(avl_tree: &Option<Tree>) -> Result<(), ()> {
     if avl_tree.is_some() {
-        return Ok(())
-    }
-    else {
-        return Err(())
+        return Ok(());
+    } else {
+        return Err(());
     }
 }
 
-fn print_tree(avl_tree: &AVLTree, cur_level:usize){
+fn print_tree(avl_tree: &AVLTree, cur_level: usize) {
     // dfs, with tabs for each level - 1
     if let Some(node) = avl_tree {
         for _ in 0..cur_level {
             let pad = "----";
-            print!("{}",pad);
+            print!("{}", pad);
         }
         // let _ = std::iter::repeat(print!("-")).take(cur_level);
         let msg = format!(" {} ", node.borrow().key);
         println!("{:}", msg);
-        
-        print_tree(&node.borrow().left, cur_level+1);
-        print_tree(&node.borrow().right, cur_level+1)
+
+        print_tree(&node.borrow().left, cur_level + 1);
+        print_tree(&node.borrow().right, cur_level + 1)
     }
 }
 
@@ -232,7 +226,7 @@ fn in_order_successor(avl_tree: AVLTree) -> AVLTree {
         while let Some(left_child) = node_borrow.clone().borrow().left.clone() {
             node_borrow = left_child.clone()
         }
-        return Some(node_borrow.clone())
+        return Some(node_borrow.clone());
     }
     None
 }
@@ -247,15 +241,14 @@ fn remove_node(mut avl_tree: AVLTree, key: u32) -> AVLTree {
             if let Some(p_node) = parent {
                 if node_key < p_node.borrow().key {
                     p_node.borrow_mut().left = None;
-                }
-                else if node_key > p_node.borrow().key {
+                } else if node_key > p_node.borrow().key {
                     p_node.borrow_mut().right = None;
                 }
-                return avl_tree
+                return avl_tree;
             }
             //Handle the case where the deleted node is the root
             else {
-                return None
+                return None;
             }
         }
         //Right child delete
@@ -265,8 +258,7 @@ fn remove_node(mut avl_tree: AVLTree, key: u32) -> AVLTree {
             if let Some(p_node) = parent {
                 if node_key < p_node.borrow().key {
                     p_node.borrow_mut().left = rep_node.clone();
-                }
-                else if node_key > p_node.borrow().key {
+                } else if node_key > p_node.borrow().key {
                     p_node.borrow_mut().right = rep_node.clone();
                 }
             }
@@ -285,8 +277,7 @@ fn remove_node(mut avl_tree: AVLTree, key: u32) -> AVLTree {
             if let Some(p_node) = parent {
                 if node_key < p_node.borrow().key {
                     p_node.borrow_mut().left = rep_node.clone();
-                }
-                else if node_key > p_node.borrow().key {
+                } else if node_key > p_node.borrow().key {
                     p_node.borrow_mut().right = rep_node.clone();
                 }
             }
@@ -307,8 +298,7 @@ fn remove_node(mut avl_tree: AVLTree, key: u32) -> AVLTree {
                     if rep_node.borrow().key < p_node.clone().borrow().key {
                         p_node.borrow_mut().left = None;
                         node.borrow_mut().key = temp_key;
-                    }
-                    else if rep_node.borrow().key > p_node.clone().borrow().key {
+                    } else if rep_node.borrow().key > p_node.clone().borrow().key {
                         p_node.borrow_mut().right = None;
                         node.borrow_mut().key = temp_key;
                     }
@@ -316,7 +306,7 @@ fn remove_node(mut avl_tree: AVLTree, key: u32) -> AVLTree {
             }
         }
     }
-    return avl_tree
+    return avl_tree;
 }
 
 //put the node to rotate into function
@@ -417,7 +407,7 @@ fn tree_layers(avl_tree: &AVLTree, counter: u32, string_vec: &mut Vec<String>) {
 // 2- DONE: Delete a node from the AVL tree.
 // 3- DONE: Count the number of leaves in a tree.
 // 4- DONE: Return the height of a tree.
-// 5- DONE: Print In-order traversal of the tree.  -> Starting from root, then all lefts  
+// 5- DONE: Print In-order traversal of the tree.  -> Starting from root, then all lefts
 // 6- DONE: Check if the tree is empty.
 // 7- DONE: Print the tree showing its structure. (Using println!(“{:#?}”,tree); is NOT
 // sufficient).
@@ -437,8 +427,8 @@ fn main() {
     let tree_height = tree_height(&avl_tree);
     let node_1 = find_key(avl_tree.clone(), 6);
     let node_2 = find_key(avl_tree.clone(), 37);
-    println!("{}",leaf_count);
-    println!("{}",tree_height);
+    println!("{}", leaf_count);
+    println!("{}", tree_height);
     let mut keys: Vec<u32> = Vec::new();
     in_order_traversal(&avl_tree, &mut keys);
     print_tree(&avl_tree, 0);
