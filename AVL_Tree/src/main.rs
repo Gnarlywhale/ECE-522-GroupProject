@@ -107,33 +107,34 @@ fn rebalance_factor(avl_tree: &AVLTree, data: u32) {
 }
 
 fn insert_node(avl_tree: AVLTree, data: u32) -> AVLTree {
-    if let Some(node) = avl_tree.clone() {
+    if let Some(node) = avl_tree {
         if data < node.borrow().key {
             let left = node.borrow_mut().left.take();
             let new_left = insert_node(left, data);
             node.borrow_mut().left = new_left;
-            if let Some(left_node) = &node.borrow().left {
+            if let Some(left_node) = &node.borrow().left.clone() {
                 left_node.borrow_mut().parent = Some(node.clone());
+                let parent = Some(node.clone());
+                rebalance_factor(&parent, data)
             }
         }
         else if data > node.borrow().key {
             let right = node.borrow_mut().right.take();
             let new_right = insert_node(right, data);
             node.borrow_mut().right = new_right;
-            if let Some(right_node) = &node.borrow().right {
+            if let Some(right_node) = &node.borrow().right.clone() {
                 right_node.borrow_mut().parent = Some(node.clone());
+                let parent = Some(node.clone());
+                rebalance_factor(&parent, data)
             }
         }
         else {
             return None
         }
-        Some(node)
+        return Some(node)
     }
     else {
-        new_avl_tree(data.clone());
-        let added_node = find_key(avl_tree.clone(), data.clone());
-        rebalance_factor(&added_node, data);
-        return added_node
+        new_avl_tree(data.clone())
     }
 }
 /* 
