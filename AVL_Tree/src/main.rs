@@ -57,11 +57,14 @@ fn find_key(avl_tree: AVLTree, data: u32) -> AVLTree {
 }
 
 // Insert the newly added node into this function
-fn rebalance_factor(avl_tree: &AVLTree, data: u32) {
+fn rebalance_factor(avl_tree: &AVLTree, data: u32) -> AVLTree {
     if let Some(node) = avl_tree.clone() {
+        println!("my key {}", node.borrow().key);
+        println!("my data {}", data);
         let left_height = tree_height(&node.clone().borrow().left.clone());
         let right_height = tree_height(&node.clone().borrow().right.clone());
         let balance_factor = left_height - right_height;
+        println!("{}", balance_factor);
         if balance_factor < -1 {
             //Either right right or right left case
             let right_node = node.clone().borrow().right.clone();
@@ -102,6 +105,7 @@ fn rebalance_factor(avl_tree: &AVLTree, data: u32) {
             if let Some(parent) = ancestor {
                 rebalance_factor(ancestor, data);
             }
+            return ancestor.clone()
         }
     }
 }
@@ -178,7 +182,7 @@ fn tree_height(avl_tree: &AVLTree) -> i32 {
         }
     }
     else {
-        return -1
+        return 0
     }
 }
 
