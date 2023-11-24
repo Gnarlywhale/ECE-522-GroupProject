@@ -59,12 +59,12 @@ fn find_key(avl_tree: AVLTree, data: u32) -> AVLTree {
 // Insert the newly added node into this function
 fn rebalance_factor(avl_tree: &AVLTree, data: u32) {
     if let Some(node) = avl_tree.clone() {
-        let left_height = tree_height(&node.clone().borrow().left);
-        let right_height = tree_height(&node.clone().borrow().right);
+        let left_height = tree_height(&node.clone().borrow().left.clone());
+        let right_height = tree_height(&node.clone().borrow().right.clone());
         let balance_factor = left_height - right_height;
         if balance_factor < -1 {
             //Either right right or right left case
-            let right_node = node.borrow().right.clone();
+            let right_node = node.clone().borrow().right.clone();
             let key = right_node.clone().unwrap().borrow().key.clone();
             if data > key {
                 //Right-Right case
@@ -81,7 +81,7 @@ fn rebalance_factor(avl_tree: &AVLTree, data: u32) {
         }
         else if balance_factor > 1 {
             //Either left left or left right case
-            let left_node = node.borrow().left.clone();
+            let left_node = node.clone().borrow().left.clone();
             let key = left_node.clone().unwrap().borrow().key.clone();
             if data < key {
                 //Left-Left case
@@ -98,7 +98,7 @@ fn rebalance_factor(avl_tree: &AVLTree, data: u32) {
         //println!("the balance factor is {}", balance_factor.clone());
         else {
             node.borrow_mut().balance_factor = balance_factor;
-            let ancestor = &node.borrow().parent;
+            let ancestor = &node.clone().borrow().parent.clone();
             if let Some(parent) = ancestor {
                 rebalance_factor(ancestor, data);
             }
@@ -107,15 +107,14 @@ fn rebalance_factor(avl_tree: &AVLTree, data: u32) {
 }
 
 fn insert_node(avl_tree: AVLTree, data: u32) -> AVLTree {
-    if let Some(node) = avl_tree {
+    if let Some(node) = avl_tree.clone() {
         if data < node.borrow().key {
             let left = node.borrow_mut().left.take();
             let new_left = insert_node(left, data);
             node.borrow_mut().left = new_left;
             if let Some(left_node) = &node.borrow().left.clone() {
                 left_node.borrow_mut().parent = Some(node.clone());
-                let parent = Some(node.clone());
-                rebalance_factor(&parent, data)
+                rebalance_factor(&avl_tree, data)
             }
         }
         else if data > node.borrow().key {
@@ -124,8 +123,7 @@ fn insert_node(avl_tree: AVLTree, data: u32) -> AVLTree {
             node.borrow_mut().right = new_right;
             if let Some(right_node) = &node.borrow().right.clone() {
                 right_node.borrow_mut().parent = Some(node.clone());
-                let parent = Some(node.clone());
-                rebalance_factor(&parent, data)
+                rebalance_factor(&avl_tree, data)
             }
         }
         else {
