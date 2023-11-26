@@ -476,7 +476,7 @@ fn main() {
     // rb_tree = insert(rb_tree, 13);
      print_tree(&rb_tree, 0);
     let mut rep_node;
-    (rb_tree,  rep_node) = remove_node(rb_tree, 6);
+    (rb_tree,  rep_node) = remove_node(rb_tree, 7);
     print_tree (&rep_node, 0);
      // Sibling testing:
     //  let (sibling, sib_direction) = get_sibling(find_key(rb_tree.clone(), 334));
@@ -525,3 +525,17 @@ fn print_tree(rb_tree: &RedBlackTree, cur_level: usize) {
         println!();
     }
 }
+fn check_if_empty(tree: &Option<Tree>) -> Result<(),()> {
+    if tree.is_some() {
+        return Ok(())
+    }
+    else {
+        return Err(())
+    }
+}
+// fn parse_tree(file_path:String,mut rb_tree: RedBlackTree) -> RedBlackTree{
+    
+//     return  rb_tree;
+// }
+#[cfg(test)]
+mod tests;
