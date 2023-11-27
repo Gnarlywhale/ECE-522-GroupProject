@@ -97,8 +97,6 @@ fn rebalance_factor(avl_tree: &AVLTree, data: u32) -> AVLTree {
             if ancestor.is_some() {
                 return rebalance_factor(ancestor, data);
             } else {
-                println!{"new root"};
-                print_tree(avl_tree, 0);
                 return avl_tree.clone();
             }
         }
@@ -110,13 +108,9 @@ fn insert(avl_tree: AVLTree, data: u32) -> AVLTree {
     let new_tree = insert_node(avl_tree.clone(), data);
     let new_node = find_key(new_tree.clone(), data);
     let balance_tree = rebalance_factor(&new_node, data);
-    println!{"insertion complete"};
-    print_tree(&balance_tree, 0);
     if balance_tree.is_some(){
-        println!("new tree");
         return balance_tree;
     }
-    println!("old tree");
     return new_tree;
 }
 
@@ -222,19 +216,46 @@ fn print_tree(avl_tree: &AVLTree, cur_level: usize) {
 // Insert the node to delete into this function
 fn in_order_successor(avl_tree: AVLTree) -> AVLTree {
     if let Some(node) = avl_tree {
-        let mut node_borrow = node.borrow().right.clone().unwrap();
-        while let Some(left_child) = node_borrow.clone().borrow().left.clone() {
-            node_borrow = left_child.clone()
+        let mut node_parent = node.borrow().parent.clone().unwrap();
+        while let Some(parent) = node_parent.clone().borrow().parent.clone() {
+            node_parent = parent.clone();
         }
-        return Some(node_borrow.clone());
+        if node.clone().borrow().key.clone() < node_parent.borrow().key.clone() {
+            let mut node_borrow = node.borrow().left.clone().unwrap();
+            while let Some(right_child) = node_borrow.clone().borrow().right.clone() {
+                node_borrow = right_child.clone();
+            }
+            return Some(node_borrow.clone());
+        }
+        if node.clone().borrow().key.clone() > node_parent.borrow().key.clone() {
+            let mut node_borrow = node.borrow().right.clone().unwrap();
+            while let Some(left_child) = node_borrow.clone().borrow().left.clone() {
+                node_borrow = left_child.clone();
+            }
+            return Some(node_borrow.clone());
+        }
     }
     None
 }
 
-fn remove_node(mut avl_tree: AVLTree, key: u32) -> AVLTree {
+fn delete(mut avl_tree: AVLTree, key: u32) -> AVLTree {
+    let (new_tree, deleted_node_parent) = remove_node(avl_tree, key.clone());
+    let balance_tree = rebalance_factor(&deleted_node_parent, key);
+    if balance_tree.is_some() {
+        return balance_tree
+    }
+    else {
+         return None
+    }
+}
+
+//insert full tree
+fn remove_node(mut avl_tree: AVLTree, key: u32) -> (AVLTree, AVLTree) {
+    let mut replacement_node_parent: Option<Rc<RefCell<TreeNode<u32>>>> = None;
     if let Some(node) = find_key(avl_tree.clone(), key) {
         let node_key = node.borrow().key.clone();
         let parent = &node.borrow().parent.clone();
+        replacement_node_parent = parent.clone();
         //No children delete
         if node.borrow().left.is_none() && node.borrow().right.is_none() {
             //Handle the case where deleted node is not the root
@@ -244,11 +265,11 @@ fn remove_node(mut avl_tree: AVLTree, key: u32) -> AVLTree {
                 } else if node_key > p_node.borrow().key {
                     p_node.borrow_mut().right = None;
                 }
-                return avl_tree;
+                return (avl_tree, replacement_node_parent);
             }
             //Handle the case where the deleted node is the root
             else {
-                return None;
+                return (None, replacement_node_parent);
             }
         }
         //Right child delete
@@ -306,7 +327,7 @@ fn remove_node(mut avl_tree: AVLTree, key: u32) -> AVLTree {
             }
         }
     }
-    return avl_tree;
+    return (avl_tree, replacement_node_parent);
 }
 
 //put the node to rotate into function
@@ -326,7 +347,6 @@ fn left_rotate(y: &AVLTree) -> AVLTree {
             }
             if let Some(z_node) = z {
                 let mut left = false;
-                println!("pointer");
                 if let Some(left_node) = &z_node.clone().borrow().left {
                     if left_node.clone().borrow().key == y_node.clone().borrow().key {
                         left = true;
@@ -352,7 +372,6 @@ fn right_rotate(y: &AVLTree) -> AVLTree {
         let x = y_node.clone().borrow_mut().left.take();
         y_node.borrow_mut().parent = x.clone();
         if let Some(x_node) = x {
-            println!("yo {:?}", Rc::strong_count(&x_node));
             let child = x_node.borrow_mut().right.take();
             x_node.borrow_mut().parent = z.clone();
             y_node.borrow_mut().left = child.clone();
@@ -414,15 +433,15 @@ fn tree_layers(avl_tree: &AVLTree, counter: u32, string_vec: &mut Vec<String>) {
 // 8- Rebalance the tree for insert and delete.
 
 fn main() {
-    let mut avl_tree = new_avl_tree(1);
-    avl_tree = insert(avl_tree, 2);
-    avl_tree = insert(avl_tree, 3);
-    avl_tree = insert(avl_tree, 4);
-    avl_tree = insert(avl_tree, 5);
-    avl_tree = insert(avl_tree, 6);
-    avl_tree = insert(avl_tree, 7);
+    let mut avl_tree = new_avl_tree(9);
     avl_tree = insert(avl_tree, 8);
-    avl_tree = insert(avl_tree, 9);
+    avl_tree = insert(avl_tree, 7);
+    avl_tree = insert(avl_tree, 6);
+    avl_tree = insert(avl_tree, 5);
+    avl_tree = insert(avl_tree, 4);
+    avl_tree = insert(avl_tree, 3);
+    avl_tree = insert(avl_tree, 2);
+    avl_tree = insert(avl_tree, 1);
     let leaf_count = count_leaves(&avl_tree);
     let tree_height = tree_height(&avl_tree);
     let node_1 = find_key(avl_tree.clone(), 6);
@@ -433,6 +452,6 @@ fn main() {
     in_order_traversal(&avl_tree, &mut keys);
     print_tree(&avl_tree, 0);
     let result = check_if_empty(&avl_tree);
-    let mut avl_tree = remove_node(avl_tree, 12);
+    let mut avl_tree = delete(avl_tree, 4);
     print_tree(&avl_tree, 0);
 }
