@@ -183,6 +183,16 @@ pub fn remove_node(
                 let parent = &rep_node.borrow().parent;
                 parent_node = parent.clone();
                 if let Some(p_node) = parent {
+                    if rep_node.clone().borrow().key == p_node.clone().borrow().right.clone().unwrap().borrow().key {
+                        // Successor is right child, bring right child along during replacement 
+                        println!("missing 9: {:?}", rep_node.clone().borrow().right.clone().unwrap().borrow().key);
+                        node.clone().borrow_mut().right = rep_node.clone().borrow().right.clone();
+                        println!("missing child: {:?}", node.clone().borrow().right.clone().unwrap().borrow().key);
+                        println!("node: {:?}", node.clone().borrow().key);
+                        } else {
+                            // Successor is a left descendant, set its right child to be be the rep_node's parent left child
+                            rep_node.clone().borrow().parent.clone().unwrap().borrow_mut().left = rep_node.clone().borrow().right.clone(); 
+                        }
                     if rep_node.clone().borrow().key < p_node.clone().borrow().key {
                         p_node.clone().borrow_mut().left = None;
                         node.borrow_mut().key = temp_key;
@@ -190,13 +200,7 @@ pub fn remove_node(
                         p_node.clone().borrow_mut().right = None;
                         node.borrow_mut().key = temp_key;
                     }
-                    if rep_node.clone().borrow().key == p_node.clone().borrow().right.clone().unwrap().borrow().key {
-                        // Successor is right child, bring right child along during replacement 
-                        node.clone().borrow_mut().right = rep_node.clone().borrow().right.clone();
-                        } else {
-                            // Successor is a left descendant, set its right child to be be the rep_node's parent left child
-                            rep_node.clone().borrow().parent.clone().unwrap().borrow_mut().left = rep_node.clone().borrow().right.clone(); 
-                        }
+                    
                 }
                 
             }
