@@ -180,13 +180,9 @@ fn tree_height(avl_tree: &AVLTree) -> i32 {
 fn in_order_traversal(avl_tree: &AVLTree, keys: &mut Vec<u32>) {
     if let Some(node) = avl_tree {
         let node_borrow = node.borrow();
-        keys.push(node_borrow.key);
-        if node_borrow.left.is_none() && node_borrow.right.is_none() {
-            println!("{:?}", keys);
-        }
         in_order_traversal(&node_borrow.left, keys);
+        keys.push(node_borrow.key);
         in_order_traversal(&node_borrow.right, keys);
-        keys.pop();
     }
 }
 
@@ -438,27 +434,28 @@ fn main() {
     avl_tree = insert(avl_tree, 15);
     avl_tree = insert(avl_tree, 13);
     print_tree(&avl_tree, 0);
-    // avl_tree = insert(avl_tree, 8);
-    // avl_tree = insert(avl_tree, 7);
-    // avl_tree = insert(avl_tree, 6);
-    // avl_tree = insert(avl_tree, 5);
-    // avl_tree = insert(avl_tree, 4);
-    // avl_tree = insert(avl_tree, 3);
-    // avl_tree = insert(avl_tree, 2);
-    // avl_tree = insert(avl_tree, 1);
+    avl_tree = insert(avl_tree, 8);
+    avl_tree = insert(avl_tree, 7);
+    avl_tree = insert(avl_tree, 6);
+    avl_tree = insert(avl_tree, 5);
+    avl_tree = insert(avl_tree, 4);
+    avl_tree = insert(avl_tree, 3);
+    avl_tree = insert(avl_tree, 2);
+    avl_tree = insert(avl_tree, 1);
     // let leaf_count = count_leaves(&avl_tree);
     // let tree_height = tree_height(&avl_tree);
     // let node_1 = find_key(avl_tree.clone(), 6);
     // let node_2 = find_key(avl_tree.clone(), 37);
     // println!("{}", leaf_count);
     // println!("{}", tree_height);
-    // let mut keys: Vec<u32> = Vec::new();
-    // in_order_traversal(&avl_tree, &mut keys);
+    let mut keys: Vec<u32> = Vec::new();
+    in_order_traversal(&avl_tree, &mut keys);
+    println!("{:?}", keys);
     // print_tree(&avl_tree, 0);
     // let result = check_if_empty(&avl_tree);
     // let mut avl_tree = delete(avl_tree, 4);
     // avl_tree = insert(avl_tree, 4);
-    // print_tree(&avl_tree, 0);
+    print_tree(&avl_tree, 0);
 }
 
     #[cfg(test)]
@@ -527,5 +524,24 @@ fn main() {
             avl_tree = delete(avl_tree, 1);
             assert_eq!(avl_tree.clone().is_none(), true);
             assert_eq!(check_if_empty(&avl_tree).is_err(), true);
+        }
+
+        #[test]
+        fn test_find_node() {
+            let mut avl_tree = new_avl_tree(9);
+            avl_tree = insert(avl_tree, 8);
+            avl_tree = insert(avl_tree, 7);
+            avl_tree = insert(avl_tree, 6);
+            avl_tree = insert(avl_tree, 5);
+            avl_tree = insert(avl_tree, 4);
+            avl_tree = insert(avl_tree, 3);
+            avl_tree = insert(avl_tree, 2);
+            avl_tree = insert(avl_tree, 1);
+            let node = avl_tree.clone().unwrap();
+            let mut node_borrow = node.borrow().left.clone().unwrap();
+            while let Some(left_child) = node_borrow.clone().borrow().left.clone(){
+                node_borrow = left_child.clone();
+            }
+            assert_eq!(find_key(avl_tree, 1).unwrap().borrow().key, node_borrow.borrow().key);
         }
     }
