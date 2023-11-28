@@ -190,7 +190,7 @@ pub fn remove_node(
                         p_node.clone().borrow_mut().right = None;
                         node.borrow_mut().key = temp_key;
                     }
-                    if rep_node.clone().borrow().key == node.clone().borrow().right.clone().unwrap().borrow().key {
+                    if rep_node.clone().borrow().key == p_node.clone().borrow().right.clone().unwrap().borrow().key {
                         // Successor is right child, bring right child along during replacement 
                         node.clone().borrow_mut().right = rep_node.clone().borrow().right.clone();
                         } else {
