@@ -176,6 +176,7 @@ fn tree_height(avl_tree: &AVLTree) -> i32 {
     }
 }
 
+//Clean-up this later to print better looking branches.
 fn in_order_traversal(avl_tree: &AVLTree, keys: &mut Vec<u32>) {
     if let Some(node) = avl_tree {
         let node_borrow = node.borrow();
@@ -213,7 +214,7 @@ fn print_tree(avl_tree: &AVLTree, cur_level: usize) {
     }
 }
 
-// Insert the node to delete into this function
+// Insert the node to of importance into this function
 fn in_order_successor(avl_tree: AVLTree) -> AVLTree {
     if let Some(node) = avl_tree {
         let mut node_parent = node.borrow().parent.clone().unwrap();
@@ -430,28 +431,101 @@ fn tree_layers(avl_tree: &AVLTree, counter: u32, string_vec: &mut Vec<String>) {
 // 6- DONE: Check if the tree is empty.
 // 7- DONE: Print the tree showing its structure. (Using println!(“{:#?}”,tree); is NOT
 // sufficient).
-// 8- Rebalance the tree for insert and delete.
+// 8- DONE: Rebalance the tree for insert and delete.
 
 fn main() {
-    let mut avl_tree = new_avl_tree(9);
-    avl_tree = insert(avl_tree, 8);
-    avl_tree = insert(avl_tree, 7);
-    avl_tree = insert(avl_tree, 6);
-    avl_tree = insert(avl_tree, 5);
-    avl_tree = insert(avl_tree, 4);
-    avl_tree = insert(avl_tree, 3);
-    avl_tree = insert(avl_tree, 2);
-    avl_tree = insert(avl_tree, 1);
-    let leaf_count = count_leaves(&avl_tree);
-    let tree_height = tree_height(&avl_tree);
-    let node_1 = find_key(avl_tree.clone(), 6);
-    let node_2 = find_key(avl_tree.clone(), 37);
-    println!("{}", leaf_count);
-    println!("{}", tree_height);
-    let mut keys: Vec<u32> = Vec::new();
-    in_order_traversal(&avl_tree, &mut keys);
+    let mut avl_tree = new_avl_tree(12);
+    avl_tree = insert(avl_tree, 15);
+    avl_tree = insert(avl_tree, 13);
     print_tree(&avl_tree, 0);
-    let result = check_if_empty(&avl_tree);
-    let mut avl_tree = delete(avl_tree, 4);
-    print_tree(&avl_tree, 0);
+    // avl_tree = insert(avl_tree, 8);
+    // avl_tree = insert(avl_tree, 7);
+    // avl_tree = insert(avl_tree, 6);
+    // avl_tree = insert(avl_tree, 5);
+    // avl_tree = insert(avl_tree, 4);
+    // avl_tree = insert(avl_tree, 3);
+    // avl_tree = insert(avl_tree, 2);
+    // avl_tree = insert(avl_tree, 1);
+    // let leaf_count = count_leaves(&avl_tree);
+    // let tree_height = tree_height(&avl_tree);
+    // let node_1 = find_key(avl_tree.clone(), 6);
+    // let node_2 = find_key(avl_tree.clone(), 37);
+    // println!("{}", leaf_count);
+    // println!("{}", tree_height);
+    // let mut keys: Vec<u32> = Vec::new();
+    // in_order_traversal(&avl_tree, &mut keys);
+    // print_tree(&avl_tree, 0);
+    // let result = check_if_empty(&avl_tree);
+    // let mut avl_tree = delete(avl_tree, 4);
+    // avl_tree = insert(avl_tree, 4);
+    // print_tree(&avl_tree, 0);
 }
+
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+        #[test]
+        fn test_insert_root_node() {
+            let avl_tree = new_avl_tree(1);
+            assert_eq!(avl_tree.clone().unwrap().borrow().key, 1);
+            assert_eq!(avl_tree.clone().unwrap().borrow().parent.is_none(), true);
+            assert_eq!(avl_tree.clone().unwrap().borrow().left.is_none(), true);
+            assert_eq!(avl_tree.clone().unwrap().borrow().right.is_none(), true);
+        }
+
+        #[test]
+        fn test_ll_rotation() {
+            let mut avl_tree = new_avl_tree(3);
+            avl_tree = insert(avl_tree, 2);
+            avl_tree = insert(avl_tree, 1);
+            assert_eq!(avl_tree.clone().unwrap().borrow().key, 2);
+            assert_eq!(avl_tree.clone().unwrap().borrow().left.clone().is_some(), true);
+            assert_eq!(avl_tree.clone().unwrap().borrow().right.clone().is_some(), true);
+            assert_eq!(avl_tree.clone().unwrap().borrow().left.clone().unwrap().borrow().key.clone(), 1);
+            assert_eq!(avl_tree.clone().unwrap().borrow().right.clone().unwrap().borrow().key.clone(), 3);
+        }
+
+        #[test]
+        fn test_rr_rotation() {
+            let mut avl_tree = new_avl_tree(1);
+            avl_tree = insert(avl_tree, 2);
+            avl_tree = insert(avl_tree, 3);
+            assert_eq!(avl_tree.clone().unwrap().borrow().key, 2);
+            assert_eq!(avl_tree.clone().unwrap().borrow().left.clone().is_some(), true);
+            assert_eq!(avl_tree.clone().unwrap().borrow().right.clone().is_some(), true);
+            assert_eq!(avl_tree.clone().unwrap().borrow().left.clone().unwrap().borrow().key.clone(), 1);
+            assert_eq!(avl_tree.clone().unwrap().borrow().right.clone().unwrap().borrow().key.clone(), 3);
+        }
+
+        #[test]
+        fn test_lr_rotation() {
+            let mut avl_tree = new_avl_tree(13);
+            avl_tree = insert(avl_tree, 11);
+            avl_tree = insert(avl_tree, 12);
+            assert_eq!(avl_tree.clone().unwrap().borrow().key, 12);
+            assert_eq!(avl_tree.clone().unwrap().borrow().left.clone().is_some(), true);
+            assert_eq!(avl_tree.clone().unwrap().borrow().right.clone().is_some(), true);
+            assert_eq!(avl_tree.clone().unwrap().borrow().left.clone().unwrap().borrow().key.clone(), 11);
+            assert_eq!(avl_tree.clone().unwrap().borrow().right.clone().unwrap().borrow().key.clone(), 13);
+        }
+
+        #[test]
+        fn test_rl_rotation() {
+            let mut avl_tree = new_avl_tree(12);
+            avl_tree = insert(avl_tree, 15);
+            avl_tree = insert(avl_tree, 13);
+            assert_eq!(avl_tree.clone().unwrap().borrow().key, 13);
+            assert_eq!(avl_tree.clone().unwrap().borrow().left.clone().is_some(), true);
+            assert_eq!(avl_tree.clone().unwrap().borrow().right.clone().is_some(), true);
+            assert_eq!(avl_tree.clone().unwrap().borrow().left.clone().unwrap().borrow().key.clone(), 12);
+            assert_eq!(avl_tree.clone().unwrap().borrow().right.clone().unwrap().borrow().key.clone(), 15);
+        }
+
+        #[test]
+        fn test_delete_and_empty_tree() {
+            let mut avl_tree = new_avl_tree(1);
+            avl_tree = delete(avl_tree, 1);
+            assert_eq!(avl_tree.clone().is_none(), true);
+            assert_eq!(check_if_empty(&avl_tree).is_err(), true);
+        }
+    }

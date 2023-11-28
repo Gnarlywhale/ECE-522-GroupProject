@@ -665,10 +665,10 @@ fn main() {
     // env::set_var("RUST_BACKTRACE", "1");
     let mut rb_tree = new_rb_tree(1);
     rb_tree = insert(rb_tree, 2);
-    rb_tree = insert(rb_tree, 3);
-    rb_tree = insert(rb_tree, 4);
+    // rb_tree = insert(rb_tree, 3);
+    // rb_tree = insert(rb_tree, 4);
     rb_tree = insert(rb_tree, 5);
-    rb_tree = insert(rb_tree, 6);
+    // rb_tree = insert(rb_tree, 6);
     rb_tree = insert(rb_tree, 7);
     rb_tree = insert(rb_tree, 8);
     rb_tree = insert(rb_tree, 9);
@@ -691,28 +691,28 @@ fn main() {
 // Swap commented code to allow null prints to help clarify which children are left and right nodes
 // Could probably implement both versions as an added feature
 fn print_tree(rb_tree: &RedBlackTree, cur_level: usize) {
-    // for i in 0..cur_level {
+    for i in 0..cur_level {
 
-    //     let pad: &str;
-    //     if i == cur_level-1{
-    //         pad = " |→";
-    //     } else {
-    //         pad = " |  ";
-    //     }
-    //     print!("{}",pad.on_white());
-    // }
+        let pad: &str;
+        if i == cur_level-1{
+            pad = " |→";
+        } else {
+            pad = " |  ";
+        }
+        print!("{}",pad.on_white());
+    }
 
     // dfs, with tabs for each level - 1
     if let Some(node) = rb_tree {
-        for i in 0..cur_level {
-            let pad: &str;
-            if i == cur_level - 1 {
-                pad = " |→";
-            } else {
-                pad = " |  ";
-            }
-            print!("{}", pad.on_white());
-        }
+        // for i in 0..cur_level {
+        //     let pad: &str;
+        //     if i == cur_level - 1 {
+        //         pad = " |→";
+        //     } else {
+        //         pad = " |  ";
+        //     }
+        //     print!("{}", pad.on_white());
+        // }
         // let _ = std::iter::repeat(print!("-")).take(cur_level);
         let msg = format!(" {} ", node.borrow().key);
         if node.borrow().color == NodeColor::Black {
@@ -724,6 +724,20 @@ fn print_tree(rb_tree: &RedBlackTree, cur_level: usize) {
         print_tree(&node.borrow().left, cur_level + 1);
         print_tree(&node.borrow().right, cur_level + 1)
     } else {
-        // println!();
+        println!();
     }
 }
+fn check_if_empty(tree: &Option<Tree>) -> Result<(),()> {
+    if tree.is_some() {
+        return Ok(())
+    }
+    else {
+        return Err(())
+    }
+}
+// fn parse_tree(file_path:String,mut rb_tree: RedBlackTree) -> RedBlackTree{
+    
+//     return  rb_tree;
+// }
+// #[cfg(test)]
+// mod tests;
