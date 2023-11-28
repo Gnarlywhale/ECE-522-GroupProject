@@ -181,13 +181,15 @@ pub fn remove_node(
                 // Remove the reference from the replacement node's parent to the replacement node
                 let parent = &rep_node.borrow().parent;
                 parent_node = parent.clone();
-                if let Some(p_node) = parent {
+                if let Some(p_node) = parent.clone() {
                     if rep_node.clone().borrow().key == p_node.clone().borrow().right.clone().unwrap().borrow().key {
-                        // Successor is right child, bring right child along during replacement 
+                        // Successor is right child, bring right child along during replacement
+                        rep_node.clone().borrow().right.clone().unwrap().borrow_mut().parent = parent.clone();
                         node.clone().borrow_mut().right = rep_node.clone().borrow().right.clone();
             
                         } else {
                             // Successor is a left descendant, set its right child to be be the rep_node's parent left child
+                            rep_node.clone().borrow().left.clone().unwrap().borrow_mut().parent = parent.clone();
                             rep_node.clone().borrow().parent.clone().unwrap().borrow_mut().left = rep_node.clone().borrow().right.clone(); 
                         }
                     println!("P node:{:?} ", p_node.clone().borrow().key);
