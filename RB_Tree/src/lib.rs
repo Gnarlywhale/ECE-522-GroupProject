@@ -116,12 +116,13 @@ pub fn remove_node(
     if let Some(node) = find_key(rb_tree.clone(), data) {
         // Handle terminal node case
         let node_key = node.borrow().key.clone();
-
+        println!("node key: {:?}", node_key.clone());
         if node.borrow().left.is_none() && node.borrow().right.is_none() {
             color = node.clone().borrow().color.clone();
             let parent = &node.borrow().parent;
             parent_node = parent.clone();
             if let Some(p_node) = parent {
+                println!("terminal case: {:?}", p_node.clone().borrow().key);
                 if node_key < p_node.borrow().key {
                     p_node.borrow_mut().left = None;
                 } else {
@@ -174,8 +175,6 @@ pub fn remove_node(
             (sibling, sibling_direction) = get_sibling(sucessor.clone());
             if let Some(rep_node) = sucessor.clone() {
                 color = rep_node.clone().borrow().color.clone();
-
-
                 // Set the parent key to match the rep_node key
                 let temp_key = rep_node.clone().borrow().key;
                 println!("{:?}", temp_key.clone());

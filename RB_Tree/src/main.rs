@@ -27,9 +27,10 @@ fn main() {
     rb_tree = insert(rb_tree, 20);
     rb_tree = delete(rb_tree, 10);
     rb_tree = delete(rb_tree, 5);
-    // rb_tree = delete(rb_tree, 18);
-    // rb_tree = delete(rb_tree, 7);
-    // rb_tree = delete(rb_tree, 20);
+    rb_tree = delete(rb_tree, 18);
+    rb_tree = delete(rb_tree, 7);
+    println!("test");
+    rb_tree = delete(rb_tree, 14);
     print_tree(&rb_tree, 0);
     // println!("{:?}",check_if_empty(&rb_tree));
     // let mut rep_node;
