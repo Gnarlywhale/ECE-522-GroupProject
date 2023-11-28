@@ -26,7 +26,7 @@ fn main() {
     rb_tree = insert(rb_tree, 17);
     rb_tree = insert(rb_tree, 20);
     rb_tree = delete(rb_tree, 10);
-    // rb_tree = delete(rb_tree, 9);
+    rb_tree = delete(rb_tree, 5);
     // rb_tree = delete(rb_tree, 18);
     // rb_tree = delete(rb_tree, 7);
     // rb_tree = delete(rb_tree, 20);
