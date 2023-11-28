@@ -1,3 +1,5 @@
+mod tests;
+
 use RB_Tree::*;
 // TO IMPLEMENT
 // 1- Insert a node to the red-black tree.

@@ -3,6 +3,7 @@ use colored::*;
 use std::cell::RefCell;
 use std::env;
 use std::f32::consts::PI;
+use std::iter::successors;
 use std::rc::Rc;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -169,9 +170,12 @@ pub fn remove_node(
             }
         } else {
             let sucessor = in_order_successor(Some(node.clone()));
+            // check if sucessor is the right child of the node
             (sibling, sibling_direction) = get_sibling(sucessor.clone());
             if let Some(rep_node) = sucessor.clone() {
                 color = rep_node.clone().borrow().color.clone();
+
+
                 // Set the parent key to match the rep_node key
                 let temp_key = rep_node.clone().borrow().key;
                 println!("{:?}", temp_key.clone());
@@ -186,7 +190,15 @@ pub fn remove_node(
                         p_node.clone().borrow_mut().right = None;
                         node.borrow_mut().key = temp_key;
                     }
+                    if rep_node.clone().borrow().key == node.clone().borrow().right.clone().unwrap().borrow().key {
+                        // Successor is right child, bring right child along during replacement 
+                        node.clone().borrow_mut().right = rep_node.clone().borrow().right.clone();
+                        } else {
+                            // Successor is a left descendant, set its right child to be be the rep_node's parent left child
+                            rep_node.clone().borrow().parent.clone().unwrap().borrow_mut().left = rep_node.clone().borrow().right.clone(); 
+                        }
                 }
+                
             }
         }
     }
@@ -709,6 +721,7 @@ pub fn check_if_empty(tree: &Option<Tree>) -> Result<(),()> {
         return Err(())
     }
 }
+
 // pub fn parse_tree(file_path:String,mut rb_tree: RedBlackTree) -> RedBlackTree{
     
 //     return  rb_tree;
