@@ -1,12 +1,10 @@
 [package]
-name = "RB_Tree"
+name = "tree_cli"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-[lib]
-name = "RB_Tree"
-path = "src/lib.rs"
+
 [dependencies]
-binary_lib = {path = "../binary_lib"}
-colored = "2.0.4"
+RB_Tree = {path = "../RB_Tree"}
+AVL_Tree = {path = "../AVL_Tree"}
