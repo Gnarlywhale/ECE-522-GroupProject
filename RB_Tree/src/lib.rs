@@ -25,8 +25,8 @@ pub struct TreeNode<T> {
     pub color: NodeColor,
     pub key: T,
     pub parent: RedBlackTree,
-    left: RedBlackTree,
-    right: RedBlackTree,
+    pub left: RedBlackTree,
+    pub right: RedBlackTree,
 }
 
 impl<T: Ord> TreeNode<T> {
