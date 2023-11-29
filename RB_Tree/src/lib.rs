@@ -362,11 +362,16 @@ pub fn delete_balance(replacement: RedBlackTree, org_color: NodeColor, parent: R
                         p_node.clone().borrow_mut().color = NodeColor::Red;
                         s_node.clone().borrow_mut().color = NodeColor::Black;
                     }
-                    right_rotate(&parent);
+                    let rotated = right_rotate(&parent);
                     if let Some(p_node) = parent.clone(){
                         new_sibling = p_node.clone().borrow().left.clone();
                     }
-                    return delete_balance(replacement, NodeColor::Black, parent, new_sibling, Direction::Left);
+                    let recurred = delete_balance(replacement, NodeColor::Black, parent, new_sibling, Direction::Right);
+                    if recurred.is_some(){
+                        return recurred;
+                    }else{
+                        return rotated;
+                    }
                 }
                 Direction::Right=>{
                     println!("red sibling right case");
@@ -376,11 +381,17 @@ pub fn delete_balance(replacement: RedBlackTree, org_color: NodeColor, parent: R
                         p_node.clone().borrow_mut().color = NodeColor::Red;
                         s_node.clone().borrow_mut().color = NodeColor::Black;
                     }
-                    left_rotate(&parent);
+                    let rotated = left_rotate(&parent);
                     if let Some(p_node) = parent.clone(){
+                        println!("new sibling {:?}", p_node.clone().borrow().right.clone().unwrap().borrow().key);
                         new_sibling = p_node.clone().borrow().right.clone();
                     }
-                    return delete_balance(replacement, NodeColor::Black, parent, new_sibling, Direction::Right);
+                    let recurred = delete_balance(replacement, NodeColor::Black, parent, new_sibling, Direction::Right);
+                    if recurred.is_some(){
+                        return recurred;
+                    }else{
+                        return rotated;
+                    }
                 }
                 Direction::Root=>{}
             }
