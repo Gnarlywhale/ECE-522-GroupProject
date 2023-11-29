@@ -213,24 +213,11 @@ fn print_tree(avl_tree: &AVLTree, cur_level: usize) {
 // Insert the node to of importance into this function
 fn in_order_successor(avl_tree: AVLTree) -> AVLTree {
     if let Some(node) = avl_tree {
-        let mut node_parent = node.borrow().parent.clone().unwrap();
-        while let Some(parent) = node_parent.clone().borrow().parent.clone() {
-            node_parent = parent.clone();
+        let mut node_borrow = node.borrow().right.clone().unwrap();
+        while let Some(left_child) = node_borrow.clone().borrow().left.clone() {
+            node_borrow = left_child.clone();
         }
-        if node.clone().borrow().key.clone() < node_parent.borrow().key.clone() {
-            let mut node_borrow = node.borrow().left.clone().unwrap();
-            while let Some(right_child) = node_borrow.clone().borrow().right.clone() {
-                node_borrow = right_child.clone();
-            }
-            return Some(node_borrow.clone());
-        }
-        if node.clone().borrow().key.clone() > node_parent.borrow().key.clone() {
-            let mut node_borrow = node.borrow().right.clone().unwrap();
-            while let Some(left_child) = node_borrow.clone().borrow().left.clone() {
-                node_borrow = left_child.clone();
-            }
-            return Some(node_borrow.clone());
-        }
+        return Some(node_borrow.clone());
     }
     None
 }
@@ -250,7 +237,7 @@ fn delete(mut avl_tree: AVLTree, key: u32) -> AVLTree {
 fn remove_node(mut avl_tree: AVLTree, key: u32) -> (AVLTree, AVLTree) {
     let mut replacement_node_parent: Option<Rc<RefCell<TreeNode<u32>>>> = None;
     if let Some(node) = find_key(avl_tree.clone(), key) {
-        let node_key = node.borrow().key.clone();
+        let node_key = node.clone().borrow().key.clone();
         let parent = &node.borrow().parent.clone();
         replacement_node_parent = parent.clone();
         //No children delete
@@ -270,7 +257,7 @@ fn remove_node(mut avl_tree: AVLTree, key: u32) -> (AVLTree, AVLTree) {
             }
         }
         //Right child delete
-        if node.borrow().left.is_none() && !node.borrow().right.is_none() {
+        if node.borrow().left.is_none() && node.borrow().right.is_some() {
             let rep_node = node.borrow().right.clone();
             //Handle the case where the deleted node is not the root
             if let Some(p_node) = parent {
@@ -289,7 +276,7 @@ fn remove_node(mut avl_tree: AVLTree, key: u32) -> (AVLTree, AVLTree) {
             }
         }
         //Left child delete
-        if !node.borrow().left.is_none() && node.borrow().right.is_none() {
+        if node.borrow().left.is_some() && node.borrow().right.is_none() {
             let rep_node = node.borrow().left.clone();
             //Handle the case where the deleted node is not the root
             if let Some(p_node) = parent {
@@ -308,17 +295,27 @@ fn remove_node(mut avl_tree: AVLTree, key: u32) -> (AVLTree, AVLTree) {
             }
         }
         //Two children delete
-        if !node.borrow().left.is_none() && !node.borrow().right.is_none() {
+        if node.borrow().left.is_some() && node.borrow().right.is_some() {
             if let Some(rep_node) = in_order_successor(Some(node.clone())) {
                 let temp_key = rep_node.clone().borrow().key;
                 let rep_node_parent = &rep_node.borrow().parent;
+                let rep_node_left_child = rep_node.borrow().left.clone();
+                let rep_node_right_child = rep_node.borrow().right.clone();
                 if let Some(p_node) = rep_node_parent {
-                    if rep_node.borrow().key < p_node.clone().borrow().key {
-                        p_node.borrow_mut().left = None;
-                        node.borrow_mut().key = temp_key;
-                    } else if rep_node.borrow().key > p_node.clone().borrow().key {
-                        p_node.borrow_mut().right = None;
-                        node.borrow_mut().key = temp_key;
+                    if rep_node_left_child.is_none() && rep_node_right_child.is_none() {
+                        if rep_node.borrow().key < p_node.clone().borrow().key {
+                            p_node.borrow_mut().left = None;
+                            node.borrow_mut().key = temp_key;
+                        } else if rep_node.borrow().key > p_node.clone().borrow().key {
+                            p_node.borrow_mut().right = None;
+                            node.borrow_mut().key = temp_key;
+                        }
+                    }
+                    else if rep_node_right_child.is_some() {
+                        if rep_node.borrow().key < p_node.clone().borrow().key {
+                            rep_node.borrow_mut().key = rep_node_right_child.unwrap().borrow().key;
+                            rep_node.borrow_mut().right = None;
+                        }
                     }
                 }
             }
@@ -442,6 +439,10 @@ fn main() {
     avl_tree = insert(avl_tree, 3);
     avl_tree = insert(avl_tree, 2);
     avl_tree = insert(avl_tree, 1);
+    avl_tree = insert(avl_tree, 11);
+    avl_tree = insert(avl_tree, 10);
+    avl_tree = insert(avl_tree, 16);
+    avl_tree = insert(avl_tree, 14);
     // let leaf_count = count_leaves(&avl_tree);
     // let tree_height = tree_height(&avl_tree);
     // let node_1 = find_key(avl_tree.clone(), 6);
@@ -453,7 +454,9 @@ fn main() {
     println!("{:?}", keys);
     // print_tree(&avl_tree, 0);
     // let result = check_if_empty(&avl_tree);
-    // let mut avl_tree = delete(avl_tree, 4);
+    print_tree(&avl_tree, 0);
+    let mut avl_tree = delete(avl_tree, 14);
+    let mut avl_tree = delete(avl_tree, 13);
     // avl_tree = insert(avl_tree, 4);
     print_tree(&avl_tree, 0);
 }
