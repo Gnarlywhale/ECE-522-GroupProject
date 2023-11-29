@@ -138,6 +138,9 @@ pub fn remove_node(
             replacement_node = rep_node.clone();
             let parent = node.borrow().parent.clone();
             parent_node = parent.clone();
+            if let Some(replace) = rep_node.clone(){
+                replace.clone().borrow_mut().parent = parent.clone();
+            }
             if let Some(p_node) = parent {
                 if node_key < p_node.borrow().key {
                     p_node.borrow_mut().left = rep_node.clone();
@@ -157,6 +160,9 @@ pub fn remove_node(
             replacement_node = rep_node.clone();
             let parent = node.borrow().parent.clone();
             parent_node = parent.clone();
+            if let Some(replace) = rep_node.clone(){
+                replace.clone().borrow_mut().parent = parent.clone();
+            }
             if let Some(p_node) = parent {
                 if node_key < p_node.borrow().key {
                     p_node.borrow_mut().left = rep_node.clone();
@@ -184,12 +190,18 @@ pub fn remove_node(
                 if let Some(p_node) = parent.clone() {
                     if rep_node.clone().borrow().key == p_node.clone().borrow().right.clone().unwrap().borrow().key {
                         // Successor is right child, bring right child along during replacement
-                        rep_node.clone().borrow().right.clone().unwrap().borrow_mut().parent = parent.clone();
+                        if let Some(right) = rep_node.clone().borrow().right.clone(){
+                            right.clone().borrow_mut().parent = parent.clone();
+                            replacement_node = Some(right);
+                        }
                         node.clone().borrow_mut().right = rep_node.clone().borrow().right.clone();
             
                         } else {
                             // Successor is a left descendant, set its right child to be be the rep_node's parent left child
-                            rep_node.clone().borrow().left.clone().unwrap().borrow_mut().parent = parent.clone();
+                            if let Some(right) = rep_node.clone().borrow().right.clone(){
+                                right.clone().borrow_mut().parent = parent.clone();
+                                replacement_node = Some(right);
+                            }
                             rep_node.clone().borrow().parent.clone().unwrap().borrow_mut().left = rep_node.clone().borrow().right.clone(); 
                         }
                     println!("P node:{:?} ", p_node.clone().borrow().key);
@@ -219,11 +231,6 @@ pub fn remove_node(
 }
 
 pub fn delete(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
-    let v = find_key(rb_tree.clone(), data);
-    let mut v_color = NodeColor::Black;
-    if let Some(node) = v {
-        v_color = node.borrow().color.clone();
-    }
     let (new_tree, replacement, color, parent, sibling, sibling_direction) =
         remove_node(rb_tree, data);
     if new_tree.is_some() {
@@ -305,9 +312,9 @@ pub fn delete_balance(replacement: RedBlackTree, org_color: NodeColor, parent: R
                                 p_node.clone().borrow_mut().color = NodeColor::Black;
                             }
                             if let Some(s_right) = s_node.clone().borrow().right.clone() {
-                                s_right.clone().borrow_mut().color = NodeColor::Black;
+                                s_right.clone().borrow_mut().color = p_color;
                             }
-                            s_node.clone().borrow_mut().color = p_color;
+                            s_node.clone().borrow_mut().color = NodeColor::Black;
                             left_rotate(&sibling);
                             return right_rotate(&parent);
                         }
@@ -335,9 +342,9 @@ pub fn delete_balance(replacement: RedBlackTree, org_color: NodeColor, parent: R
                                 p_node.clone().borrow_mut().color = NodeColor::Black;
                             }
                             if let Some(s_left) = s_node.clone().borrow().left.clone() {
-                                s_left.clone().borrow_mut().color = NodeColor::Black;
+                                s_left.clone().borrow_mut().color = p_color;
                             }
-                            s_node.clone().borrow_mut().color = p_color;
+                            s_node.clone().borrow_mut().color = NodeColor::Black;
                             right_rotate(&sibling);
                             return left_rotate(&parent);
                         }
