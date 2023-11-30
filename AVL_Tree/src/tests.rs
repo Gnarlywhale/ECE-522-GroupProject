@@ -85,3 +85,31 @@
         }
         assert_eq!(find_key(avl_tree, 1).unwrap().borrow().key, node_borrow.borrow().key);
     }
+
+    #[test]
+    fn test_delete_ll_rotation() {
+        let mut avl_tree = new_avl_tree(3);
+        avl_tree = insert(avl_tree, 4);
+        avl_tree = insert(avl_tree, 2);
+        avl_tree = insert(avl_tree, 1);
+        avl_tree = delete(avl_tree, 4);
+        assert_eq!(avl_tree.clone().unwrap().borrow().key, 2);
+        assert_eq!(avl_tree.clone().unwrap().borrow().left.clone().is_some(), true);
+        assert_eq!(avl_tree.clone().unwrap().borrow().right.clone().is_some(), true);
+        assert_eq!(avl_tree.clone().unwrap().borrow().left.clone().unwrap().borrow().key.clone(), 1);
+        assert_eq!(avl_tree.clone().unwrap().borrow().right.clone().unwrap().borrow().key.clone(), 3);
+    }
+
+    #[test]
+    fn test_delete_lr_rotation() {
+        let mut avl_tree = new_avl_tree(13);
+        avl_tree = insert(avl_tree, 14);
+        avl_tree = insert(avl_tree, 11);
+        avl_tree = insert(avl_tree, 12);
+        avl_tree = delete(avl_tree, 14);
+        assert_eq!(avl_tree.clone().unwrap().borrow().key, 12);
+        assert_eq!(avl_tree.clone().unwrap().borrow().left.clone().is_some(), true);
+        assert_eq!(avl_tree.clone().unwrap().borrow().right.clone().is_some(), true);
+        assert_eq!(avl_tree.clone().unwrap().borrow().left.clone().unwrap().borrow().key.clone(), 11);
+        assert_eq!(avl_tree.clone().unwrap().borrow().right.clone().unwrap().borrow().key.clone(), 13);
+    }
