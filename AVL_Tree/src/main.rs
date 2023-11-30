@@ -1,26 +1,4 @@
 
-/*
-// This isnt complete yet
-fn tree_layers(avl_tree: &AVLTree, counter: u32, string_vec: &mut Vec<String>) {
-    if avl_tree.is_some() {
-        let node_borrow = avl_tree.as_ref().unwrap().borrow();
-        let key_string = node_borrow.key.to_string();
-        if counter as usize <= tree_height(avl_tree) as usize - 1 {
-            string_vec[counter as usize].push_str(&key_string);
-        }
-        // This may cause we seperate vec_strings to be returned
-        tree_layers(&node_borrow.left, counter + 1, string_vec);
-        tree_layers(&node_borrow.right, counter + 1, string_vec);
-    }
-    else {
-        let key_string = "?".to_string();
-        if counter as usize <= tree_height(avl_tree) as usize - 1 {
-            string_vec[counter as usize].push_str(&key_string);
-        }
-    }
-}
-*/
-
 mod tests;
 // TO IMPLEMENT
 // 1- DONE: Insert a node to the AVL tree.
@@ -63,8 +41,8 @@ fn main() {
     // print_tree(&avl_tree, 0);
     // let result = check_if_empty(&avl_tree);
     print_tree(&avl_tree, 0);
-    let mut avl_tree = delete(avl_tree, 14);
-    let mut avl_tree = delete(avl_tree, 15);
+    //let mut avl_tree = delete(avl_tree, 14);
+    let mut avl_tree = delete(avl_tree, 8);
     // avl_tree = insert(avl_tree, 4);
     print_tree(&avl_tree, 0);
     let number_nodes = count_nodes(&avl_tree);
