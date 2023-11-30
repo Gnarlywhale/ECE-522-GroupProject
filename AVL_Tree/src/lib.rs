@@ -1,6 +1,7 @@
 use binary_lib::*;
 use std::cell::RefCell;
 use std::rc::Rc;
+use colored::*;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Direction {
@@ -200,8 +201,8 @@ pub fn tree_height(avl_tree: &AVLTree) -> i32 {
 pub fn in_order_traversal(avl_tree: &AVLTree, keys: &mut Vec<u32>) {
     if let Some(node) = avl_tree {
         let node_borrow = node.borrow();
-        in_order_traversal(&node_borrow.left, keys);
         keys.push(node_borrow.key);
+        in_order_traversal(&node_borrow.left, keys);
         in_order_traversal(&node_borrow.right, keys);
     }
 }
@@ -213,7 +214,40 @@ pub fn check_if_empty(avl_tree: &Option<Tree>) -> Result<(), ()> {
         return Err(());
     }
 }
+pub fn print_tree(avl_tree: &AVLTree, cur_level: usize) {
+    for i in 0..cur_level {
 
+        let pad: &str;
+        if i == cur_level-1{
+            pad = " |→";
+        } else {
+            pad = " |  ";
+        }
+        print!("{}",pad.black().on_white());
+    }
+
+    // dfs, with tabs for each level - 1
+    if let Some(node) = avl_tree {
+        // for i in 0..cur_level {
+        //     let pad: &str;
+        //     if i == cur_level - 1 {
+        //         pad = " |→";
+        //     } else {
+        //         pad = " |  ";
+        //     }
+        //     print!("{}", pad.on_white());
+        // }
+        // let _ = std::iter::repeat(print!("-")).take(cur_level);
+        let msg = format!(" {} ", node.borrow().key);
+        println!("{:}", msg.black().on_white());
+
+        print_tree(&node.borrow().left, cur_level + 1);
+        print_tree(&node.borrow().right, cur_level + 1)
+    } else {
+        println!();
+    }
+}
+/*
 pub fn print_tree(avl_tree: &AVLTree, cur_level: usize) {
     // dfs, with tabs for each level - 1
     if let Some(node) = avl_tree {
@@ -229,7 +263,7 @@ pub fn print_tree(avl_tree: &AVLTree, cur_level: usize) {
         print_tree(&node.borrow().right, cur_level + 1)
     }
 }
-
+*/
 // Insert the node to of importance into this function
 pub fn in_order_successor(avl_tree: AVLTree) -> AVLTree {
     if let Some(node) = avl_tree {
@@ -249,7 +283,7 @@ pub fn delete(mut avl_tree: AVLTree, key: u32) -> AVLTree {
         return balance_tree
     }
     else {
-         return None
+         return new_tree
     }
 }
 

@@ -29,6 +29,7 @@ fn main() {
     avl_tree = insert(avl_tree, 10);
     avl_tree = insert(avl_tree, 16);
     avl_tree = insert(avl_tree, 14);
+    avl_tree = insert(avl_tree, 9);
     // let leaf_count = count_leaves(&avl_tree);
     // let tree_height = tree_height(&avl_tree);
     // let node_1 = find_key(avl_tree.clone(), 6);
