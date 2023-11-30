@@ -75,6 +75,26 @@ pub fn count_leaves(rb_tree: &RedBlackTree) -> u32 {
     }
 }
 
+pub fn count_nodes(rb_tree: &RedBlackTree) -> u32 {
+    if let Some(node) = rb_tree {
+        if node.borrow().left.is_some() && node.borrow().right.is_none() {
+            return 1 + count_nodes(&node.borrow().left)
+        }
+        else if node.borrow().right.is_some() && node.borrow().left.is_none() {
+            return 1 + count_nodes(&node.borrow().right)
+        }
+        else if node.borrow().left.is_some() && node.borrow().right.is_some() {
+            return 1 + count_nodes(&node.borrow().left) + count_nodes(&node.borrow().right)
+        }
+        else {
+            return 1;
+        }
+    }
+    else {
+        return 0;
+    }
+}
+
 pub fn in_order_successor(rb_tree: RedBlackTree) -> RedBlackTree {
     if let Some(node) = rb_tree {
         //
