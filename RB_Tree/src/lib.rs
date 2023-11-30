@@ -116,13 +116,11 @@ pub fn remove_node(
     if let Some(node) = find_key(rb_tree.clone(), data) {
         // Handle terminal node case
         let node_key = node.borrow().key.clone();
-        println!("node key: {:?}", node_key.clone());
         if node.borrow().left.is_none() && node.borrow().right.is_none() {
             color = node.clone().borrow().color.clone();
             let parent = &node.borrow().parent;
             parent_node = parent.clone();
             if let Some(p_node) = parent {
-                println!("terminal case: {:?}", p_node.clone().borrow().key);
                 if node_key < p_node.borrow().key {
                     p_node.borrow_mut().left = None;
                 } else {
@@ -183,7 +181,6 @@ pub fn remove_node(
                 color = rep_node.clone().borrow().color.clone();
                 // Set the parent key to match the rep_node key
                 let temp_key = rep_node.clone().borrow().key;
-                println!("{:?}", temp_key.clone());
                 // Remove the reference from the replacement node's parent to the replacement node
                 let parent = &rep_node.borrow().parent;
                 parent_node = parent.clone();
@@ -204,13 +201,9 @@ pub fn remove_node(
                             }
                             rep_node.clone().borrow().parent.clone().unwrap().borrow_mut().left = rep_node.clone().borrow().right.clone(); 
                         }
-                    println!("P node:{:?} ", p_node.clone().borrow().key);
                     if rep_node.clone().borrow().key < p_node.clone().borrow().key {
-                        // p_node.clone().borrow_mut().left = None;
                         node.borrow_mut().key = temp_key;
                     } else {
-                        println!("Doh ");
-                        // p_node.clone().borrow_mut().right = None;
                         node.borrow_mut().key = temp_key;
                     }
                     
@@ -383,7 +376,6 @@ pub fn delete_balance(replacement: RedBlackTree, org_color: NodeColor, parent: R
                     }
                     let rotated = left_rotate(&parent);
                     if let Some(p_node) = parent.clone(){
-                        println!("new sibling {:?}", p_node.clone().borrow().right.clone().unwrap().borrow().key);
                         new_sibling = p_node.clone().borrow().right.clone();
                     }
                     let recurred = delete_balance(replacement, NodeColor::Black, parent, new_sibling, Direction::Right);
@@ -670,7 +662,6 @@ pub fn right_rotate(y: &RedBlackTree) -> RedBlackTree {
         let x = y_node.clone().borrow_mut().left.take();
         y_node.borrow_mut().parent = x.clone();
         if let Some(x_node) = x {
-            // println!("yo {:?}", Rc::strong_count(&x_node));
             let child = x_node.borrow_mut().right.take();
             x_node.borrow_mut().parent = z.clone();
             y_node.borrow_mut().left = child.clone();
