@@ -249,7 +249,7 @@ pub fn delete(mut avl_tree: AVLTree, key: u32) -> AVLTree {
         return balance_tree
     }
     else {
-         return None
+        return new_tree
     }
 }
 

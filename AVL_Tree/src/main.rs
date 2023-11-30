@@ -42,7 +42,7 @@ fn main() {
     // let result = check_if_empty(&avl_tree);
     print_tree(&avl_tree, 0);
     //let mut avl_tree = delete(avl_tree, 14);
-    let mut avl_tree = delete(avl_tree, 8);
+    avl_tree = delete(avl_tree, 8);
     // avl_tree = insert(avl_tree, 4);
     print_tree(&avl_tree, 0);
     let number_nodes = count_nodes(&avl_tree);

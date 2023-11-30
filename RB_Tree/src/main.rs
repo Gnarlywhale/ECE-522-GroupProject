@@ -27,13 +27,13 @@ fn main() {
     rb_tree = insert(&rb_tree, 20);
     print_tree(&rb_tree, 0);
     println!("Height: {:?}", tree_height(&rb_tree));
+    println!("Leaves: {:?}", count_leaves(&rb_tree));
     rb_tree = delete(rb_tree, 10);
     rb_tree = delete(rb_tree, 5);
     rb_tree = delete(rb_tree, 3);
     rb_tree = delete(rb_tree, 7);
     rb_tree = delete(rb_tree, 12);
     rb_tree = delete(rb_tree, 18);
-    
     rb_tree = delete(rb_tree, 1);
     rb_tree = delete(rb_tree, 9);
     rb_tree = delete(rb_tree, 14);
