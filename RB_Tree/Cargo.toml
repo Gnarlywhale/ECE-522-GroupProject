@@ -7,6 +7,12 @@ edition = "2021"
 [lib]
 name = "RB_Tree"
 path = "src/lib.rs"
+
 [dependencies]
 binary_lib = {path = "../binary_lib"}
 colored = "2.0.4"
+criterion = "*"
+
+[[bench]]
+name = "rb_bench"
+harness = false

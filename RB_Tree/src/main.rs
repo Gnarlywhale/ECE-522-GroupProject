@@ -14,17 +14,19 @@ fn main() {
     // uncomment for more verbose error messages
     // env::set_var("RUST_BACKTRACE", "1");
     let mut rb_tree = new_rb_tree(10);
-    rb_tree = insert(rb_tree, 5);
-    rb_tree = insert(rb_tree, 15);
-    rb_tree = insert(rb_tree, 3);
-    rb_tree = insert(rb_tree, 7);
-    rb_tree = insert(rb_tree, 12);
-    rb_tree = insert(rb_tree, 18);
-    rb_tree = insert(rb_tree, 1);
-    rb_tree = insert(rb_tree, 9);
-    rb_tree = insert(rb_tree, 14);
-    rb_tree = insert(rb_tree, 17);
-    rb_tree = insert(rb_tree, 20);
+    _ = insert(&rb_tree, 5);
+    _ = insert(&rb_tree, 15);
+    _ = insert(&rb_tree, 3);
+    _ = insert(&rb_tree, 7);
+    _ = insert(&rb_tree, 12);
+    _ = insert(&rb_tree, 18);
+    _ = insert(&rb_tree, 1);
+    _ = insert(&rb_tree, 9);
+    _ = insert(&rb_tree, 14);
+    _ = insert(&rb_tree, 17);
+    _ = insert(&rb_tree, 20);
+    print_tree(&rb_tree, 0);
+    println!("Height: {:?}", tree_height(&rb_tree));
     rb_tree = delete(rb_tree, 10);
     rb_tree = delete(rb_tree, 5);
     rb_tree = delete(rb_tree, 3);
@@ -33,12 +35,13 @@ fn main() {
     rb_tree = delete(rb_tree, 18);
     rb_tree = delete(rb_tree, 1);
     println!("error point");
+
     rb_tree = delete(rb_tree, 9);
     rb_tree = delete(rb_tree, 14);
     rb_tree = delete(rb_tree, 17);
     rb_tree = delete(rb_tree, 20);
     rb_tree = delete(rb_tree, 15);
-    print_tree(&rb_tree, 0);
+    // print_tree(&rb_tree, 0);
     // println!("{:?}",check_if_empty(&rb_tree));
     // let mut rep_node;
     // (rb_tree, rep_node) = remove_node(rb_tree, 6);

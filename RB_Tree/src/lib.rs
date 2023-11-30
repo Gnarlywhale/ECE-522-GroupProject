@@ -413,21 +413,21 @@ pub fn delete_balance(replacement: RedBlackTree, org_color: NodeColor, parent: R
     None
 }
 
-pub fn insert_node(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
-    if let Some(node) = rb_tree {
+pub fn insert_node(rb_tree: &RedBlackTree, data: u32) -> RedBlackTree {
+    if let Some(node) = rb_tree.clone() {
         if data == node.borrow().key {
             return None;
         }
         if data < node.borrow().key {
             let left = node.borrow_mut().left.take();
-            let new_left = insert_node(left, data);
+            let new_left = insert_node(&left, data);
             node.borrow_mut().left = new_left;
             if let Some(left_node) = &node.borrow().left {
                 left_node.borrow_mut().parent = Some(node.clone());
             }
         } else {
             let right = node.borrow_mut().right.take();
-            let new_right = insert_node(right, data);
+            let new_right = insert_node(&right, data);
             node.borrow_mut().right = new_right;
             if let Some(right_node) = &node.borrow().right {
                 right_node.borrow_mut().parent = Some(node.clone());
@@ -439,7 +439,7 @@ pub fn insert_node(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
     }
 }
 
-pub fn insert(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
+pub fn insert(rb_tree: &RedBlackTree, data: u32) -> RedBlackTree {
     let new_tree = insert_node(rb_tree, data);
     let node = &find_key(new_tree.clone(), data);
     let rotates = insert_balance(node);
@@ -651,14 +651,26 @@ pub fn left_rotate(y: &RedBlackTree) -> RedBlackTree {
     }
     None
 }
-
+pub fn tree_height(tree: &RedBlackTree) -> i32 {
+    if let Some(node) = tree {
+        if node.borrow().left.is_none() && node.borrow().right.is_none() {
+            return 1;
+        } else {
+            let left_height = tree_height(&node.borrow().left);
+            let right_height = tree_height(&node.borrow().right);
+            return 1 + i32::max(left_height, right_height);
+        }
+    } else {
+        return 0;
+    }
+}
 pub fn right_rotate(y: &RedBlackTree) -> RedBlackTree {
     if let Some(y_node) = y {
         let z = y_node.clone().borrow_mut().parent.take();
         let x = y_node.clone().borrow_mut().left.take();
         y_node.borrow_mut().parent = x.clone();
         if let Some(x_node) = x {
-            println!("yo {:?}", Rc::strong_count(&x_node));
+            // println!("yo {:?}", Rc::strong_count(&x_node));
             let child = x_node.borrow_mut().right.take();
             x_node.borrow_mut().parent = z.clone();
             y_node.borrow_mut().left = child.clone();
