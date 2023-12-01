@@ -7,6 +7,12 @@ edition = "2021"
 [lib]
 name = "AVL_Tree"
 path = "src/lib.rs"
+
 [dependencies]
 binary_lib = {path = "../binary_lib"}
+criterion = "*"
+
+[[bench]]
+name = "avl_bench"
+harness = false
 

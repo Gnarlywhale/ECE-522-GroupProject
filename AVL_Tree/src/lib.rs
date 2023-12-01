@@ -104,7 +104,7 @@ pub fn rebalance_factor(avl_tree: &AVLTree, data: u32) -> AVLTree {
     None
 }
 
-pub fn insert(avl_tree: AVLTree, data: u32) -> AVLTree {
+pub fn insert(avl_tree: &AVLTree, data: u32) -> AVLTree {
     let new_tree = insert_node(avl_tree.clone(), data);
     let new_node = find_key(new_tree.clone(), data);
     let balance_tree = rebalance_factor(&new_node, data);
