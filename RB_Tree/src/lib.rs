@@ -658,7 +658,7 @@ pub fn left_rotate(y: &RedBlackTree) -> RedBlackTree {
     }
     None
 }
-pub fn tree_height(tree: &RedBlackTree) -> i32 {
+pub fn tree_height(tree: &Option<Tree>) -> i32 {
     if let Some(node) = tree {
         if node.borrow().left.is_none() && node.borrow().right.is_none() {
             return 1;

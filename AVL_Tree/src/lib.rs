@@ -206,7 +206,7 @@ pub fn in_order_traversal(avl_tree: &AVLTree, keys: &mut Vec<u32>) {
     }
 }
 
-pub fn check_if_empty(avl_tree: &Option<Tree>) -> Result<(), ()> {
+pub fn check_if_empty(avl_tree: &AVLTree) -> Result<(), ()> {
     if avl_tree.is_some() {
         return Ok(());
     } else {
