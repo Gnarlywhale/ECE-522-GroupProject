@@ -464,7 +464,14 @@ pub fn insert(rb_tree: &RedBlackTree, data: u32) -> RedBlackTree {
     }
     return new_tree;
 }
-
+pub fn in_order_traversal(rb_tree: &RedBlackTree, keys: &mut Vec<u32>) {
+    if let Some(node) = rb_tree {
+        let node_borrow = node.borrow();
+        in_order_traversal(&node_borrow.left, keys);
+        keys.push(node_borrow.key);
+        in_order_traversal(&node_borrow.right, keys);
+    }
+}
 pub fn insert_balance(x: &RedBlackTree) -> Vec<(Direction, u32)> {
     if let Some(x_node) = x {
         let mut x_dir = Direction::Left;
