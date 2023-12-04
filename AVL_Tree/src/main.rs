@@ -33,18 +33,18 @@ fn main() {
         avl_tree = insert(&avl_tree, i)
     }
     print_tree(&avl_tree, 0);
-    avl_tree = insert(avl_tree, 8);
-    avl_tree = insert(avl_tree, 7);
-    avl_tree = insert(avl_tree, 6);
-    avl_tree = insert(avl_tree, 5);
-    avl_tree = insert(avl_tree, 4);
-    avl_tree = insert(avl_tree, 3);
-    avl_tree = insert(avl_tree, 2);
-    avl_tree = insert(avl_tree, 1);
-    avl_tree = insert(avl_tree, 11);
-    avl_tree = insert(avl_tree, 10);
-    avl_tree = insert(avl_tree, 16);
-    avl_tree = insert(avl_tree, 14);
+    avl_tree = insert(&avl_tree, 8);
+    avl_tree = insert(&avl_tree, 7);
+    avl_tree = insert(&avl_tree, 6);
+    avl_tree = insert(&avl_tree, 5);
+    avl_tree = insert(&avl_tree, 4);
+    avl_tree = insert(&avl_tree, 3);
+    avl_tree = insert(&avl_tree, 2);
+    avl_tree = insert(&avl_tree, 1);
+    avl_tree = insert(&avl_tree, 11);
+    avl_tree = insert(&avl_tree, 10);
+    avl_tree = insert(&avl_tree, 16);
+    avl_tree = insert(&avl_tree, 14);
     // let leaf_count = count_leaves(&avl_tree);
     // let tree_height = tree_height(&avl_tree);
     // let node_1 = find_key(avl_tree.clone(), 6);

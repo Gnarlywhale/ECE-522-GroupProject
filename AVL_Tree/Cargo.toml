@@ -10,13 +10,10 @@ path = "src/lib.rs"
 
 [dependencies]
 binary_lib = {path = "../binary_lib"}
-<<<<<<< HEAD
 colored = "2.0.4"
-=======
 criterion = "*"
 
 [[bench]]
 name = "avl_bench"
 harness = false
->>>>>>> fef7545810d4fd558792648cf8d3b2640758063a
 
