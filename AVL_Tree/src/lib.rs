@@ -3,13 +3,6 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use colored::*;
 
-#[derive(Clone, Debug, PartialEq)]
-pub enum Direction {
-    Right,
-    Left,
-    Root,
-}
-
 // #[derive(Clone, Debug, PartialEq)]
 pub type Tree = Rc<RefCell<TreeNode<u32>>>;
 pub type AVLTree = Option<Tree>;
