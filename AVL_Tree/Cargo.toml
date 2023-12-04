@@ -10,6 +10,7 @@ path = "src/lib.rs"
 
 [dependencies]
 binary_lib = {path = "../binary_lib"}
+colored = "2.0.4"
 criterion = "*"
 
 [[bench]]
