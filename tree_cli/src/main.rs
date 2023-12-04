@@ -171,7 +171,7 @@ fn rb_interface(mut tree:Option<Tree>){
             println!("{:?}",keys);
         }
         'e' => {
-            match check_if_empty(&tree) {
+            match RB_Tree::check_if_empty(&tree) {
                 Ok(()) => {println!("Tree is not empty")}
                 Err(()) => {println!("Tree is empty")}
             }
@@ -239,10 +239,10 @@ fn avl_interface(mut tree: AVLTree){
             println!("{:?}",keys);
         }
         'e' => {
-            // match AVLTree::check_if_empty(&tree) {
-            //     Ok(()) => {println!("Tree is not empty")}
-            //     Err(()) => {println!("Tree is empty")}
-            // }
+            match  AVL_Tree::check_if_empty(&tree) {
+                Ok(()) => {println!("Tree is not empty")}
+                Err(()) => {println!("Tree is empty")}
+            }
             
         }
         's' => {

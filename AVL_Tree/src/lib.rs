@@ -127,7 +127,7 @@ pub fn insert_node(avl_tree: AVLTree, data: u32) -> AVLTree {
                 //rebalance_factor(&avl_tree, data)
             }
         } else {
-            return None;
+            return avl_tree;
         }
         return Some(node);
     } else {

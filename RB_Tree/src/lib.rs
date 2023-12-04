@@ -753,7 +753,7 @@ pub fn print_tree(rb_tree: &RedBlackTree, cur_level: usize) {
     }
 }
 
-pub fn check_if_empty(tree: &Option<Tree>) -> Result<(),()> {
+pub fn check_if_empty(tree: &RedBlackTree) -> Result<(),()> {
     if tree.is_some() {
         return Ok(())
     }
