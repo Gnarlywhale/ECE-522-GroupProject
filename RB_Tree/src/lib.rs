@@ -1,9 +1,5 @@
-use binary_lib::*;
 use colored::*;
 use std::cell::RefCell;
-use std::env;
-use std::f32::consts::PI;
-use std::iter::successors;
 use std::rc::Rc;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -41,21 +37,6 @@ impl<T: Ord> TreeNode<T> {
     }
 }
 
-// I think going with a struct-based implementation is a better way to go,
-// But seems a bit weird since we have the RB tree defined as a foreign pub type, TO DISCUSS
-// pub struct RBTree {
-//     root: RedBlackTree
-// }
-// impl RBTree {
-//     pub pub fn new() -> Self {
-//         RBTree { root: None }
-//     }
-
-//     pub pub fn insert_node(&mut self, data:T){
-
-//     }
-// }
-
 pub fn new_rb_tree(data: u32) -> RedBlackTree {
     let mut node = TreeNode::new(data);
     node.color = NodeColor::Black;
@@ -81,6 +62,39 @@ pub fn find_key(rb_tree: RedBlackTree, data: u32) -> RedBlackTree {
         None
     }
 }
+
+pub fn count_leaves(rb_tree: &RedBlackTree) -> u32 {
+    if let Some(node) = rb_tree {
+        if node.borrow().left.is_none() && node.borrow().right.is_none() {
+            return 1;
+        } else {
+            return count_leaves(&node.borrow().left) + count_leaves(&node.borrow().right);
+        }
+    } else {
+        return 0;
+    }
+}
+
+pub fn count_nodes(rb_tree: &RedBlackTree) -> u32 {
+    if let Some(node) = rb_tree {
+        if node.borrow().left.is_some() && node.borrow().right.is_none() {
+            return 1 + count_nodes(&node.borrow().left)
+        }
+        else if node.borrow().right.is_some() && node.borrow().left.is_none() {
+            return 1 + count_nodes(&node.borrow().right)
+        }
+        else if node.borrow().left.is_some() && node.borrow().right.is_some() {
+            return 1 + count_nodes(&node.borrow().left) + count_nodes(&node.borrow().right)
+        }
+        else {
+            return 1;
+        }
+    }
+    else {
+        return 0;
+    }
+}
+
 pub fn in_order_successor(rb_tree: RedBlackTree) -> RedBlackTree {
     if let Some(node) = rb_tree {
         //
@@ -90,16 +104,12 @@ pub fn in_order_successor(rb_tree: RedBlackTree) -> RedBlackTree {
         }
         // Found last successor
         return Some(curr_node.clone());
-        // print_tree(&Some(curr_node.clone()), 0)
     }
     None
 }
 
-// remove node returns the tree root and a pointer to the newly inserted node (also a tree)
-
-// TODO double check edge cases! i.e. 1 node tree
 pub fn remove_node(
-    mut rb_tree: RedBlackTree,
+    rb_tree: RedBlackTree,
     data: u32,
 ) -> (
     RedBlackTree,
@@ -116,13 +126,11 @@ pub fn remove_node(
     if let Some(node) = find_key(rb_tree.clone(), data) {
         // Handle terminal node case
         let node_key = node.borrow().key.clone();
-        println!("node key: {:?}", node_key.clone());
         if node.borrow().left.is_none() && node.borrow().right.is_none() {
             color = node.clone().borrow().color.clone();
             let parent = &node.borrow().parent;
             parent_node = parent.clone();
             if let Some(p_node) = parent {
-                println!("terminal case: {:?}", p_node.clone().borrow().key);
                 if node_key < p_node.borrow().key {
                     p_node.borrow_mut().left = None;
                 } else {
@@ -183,7 +191,6 @@ pub fn remove_node(
                 color = rep_node.clone().borrow().color.clone();
                 // Set the parent key to match the rep_node key
                 let temp_key = rep_node.clone().borrow().key;
-                println!("{:?}", temp_key.clone());
                 // Remove the reference from the replacement node's parent to the replacement node
                 let parent = &rep_node.borrow().parent;
                 parent_node = parent.clone();
@@ -204,18 +211,12 @@ pub fn remove_node(
                             }
                             rep_node.clone().borrow().parent.clone().unwrap().borrow_mut().left = rep_node.clone().borrow().right.clone(); 
                         }
-                    println!("P node:{:?} ", p_node.clone().borrow().key);
                     if rep_node.clone().borrow().key < p_node.clone().borrow().key {
-                        // p_node.clone().borrow_mut().left = None;
                         node.borrow_mut().key = temp_key;
                     } else {
-                        println!("Doh ");
-                        // p_node.clone().borrow_mut().right = None;
                         node.borrow_mut().key = temp_key;
                     }
-                    
                 }
-                
             }
         }
     }
@@ -383,7 +384,6 @@ pub fn delete_balance(replacement: RedBlackTree, org_color: NodeColor, parent: R
                     }
                     let rotated = left_rotate(&parent);
                     if let Some(p_node) = parent.clone(){
-                        println!("new sibling {:?}", p_node.clone().borrow().right.clone().unwrap().borrow().key);
                         new_sibling = p_node.clone().borrow().right.clone();
                     }
                     let recurred = delete_balance(replacement, NodeColor::Black, parent, new_sibling, Direction::Right);
@@ -464,7 +464,14 @@ pub fn insert(rb_tree: &RedBlackTree, data: u32) -> RedBlackTree {
     }
     return new_tree;
 }
-
+pub fn in_order_traversal(rb_tree: &RedBlackTree, keys: &mut Vec<u32>) {
+    if let Some(node) = rb_tree {
+        let node_borrow = node.borrow();
+        in_order_traversal(&node_borrow.left, keys);
+        keys.push(node_borrow.key);
+        in_order_traversal(&node_borrow.right, keys);
+    }
+}
 pub fn insert_balance(x: &RedBlackTree) -> Vec<(Direction, u32)> {
     if let Some(x_node) = x {
         let mut x_dir = Direction::Left;
@@ -670,7 +677,6 @@ pub fn right_rotate(y: &RedBlackTree) -> RedBlackTree {
         let x = y_node.clone().borrow_mut().left.take();
         y_node.borrow_mut().parent = x.clone();
         if let Some(x_node) = x {
-            // println!("yo {:?}", Rc::strong_count(&x_node));
             let child = x_node.borrow_mut().right.take();
             x_node.borrow_mut().parent = z.clone();
             y_node.borrow_mut().left = child.clone();
@@ -722,7 +728,6 @@ pub fn print_tree(rb_tree: &RedBlackTree, cur_level: usize) {
         }
         print!("{}",pad.on_white());
     }
-
     // dfs, with tabs for each level - 1
     if let Some(node) = rb_tree {
         // for i in 0..cur_level {
@@ -741,13 +746,13 @@ pub fn print_tree(rb_tree: &RedBlackTree, cur_level: usize) {
         } else {
             println!("{:}", msg.red().on_white());
         }
-
         print_tree(&node.borrow().left, cur_level + 1);
         print_tree(&node.borrow().right, cur_level + 1)
     } else {
         println!();
     }
 }
+
 pub fn check_if_empty(tree: &Option<Tree>) -> Result<(),()> {
     if tree.is_some() {
         return Ok(())
