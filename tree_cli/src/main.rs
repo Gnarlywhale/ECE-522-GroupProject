@@ -17,15 +17,60 @@ where P: AsRef<Path>, {
     Ok(io::BufReader::new(file).lines())
 }
 
+fn combine_rb_tree(mut tree: RedBlackTree) -> RedBlackTree{
+    println!("Select 2nd tree");
+    let file = FileDialog::new()
+    .add_filter("text", &["txt"])
+    .set_directory("/")
+    .pick_file();
+            if let Some(fpath) = file {
+                // load the file
+                if let Ok(mut lines) = read_lines(fpath) {                    
+                    match lines.next().unwrap().unwrap().as_str() {
+                        "RB_Tree" | "AVL_Tree" => {
+                            tree = parse_rb_tree(tree.clone(), lines);
+                        }
+                        _ => {
+                            println!("Coud not parse 2nd tree");
+                        }                        
+                    }
+                }
+                
+            } 
+            return tree;
+}
 
+fn combine_avl_tree(mut tree: AVLTree) -> AVLTree{
+    println!("Select 2nd tree");
+    let file = FileDialog::new()
+    .add_filter("text", &["txt"])
+    .set_directory("/")
+    .pick_file();
+            if let Some(fpath) = file {
+                // load the file
+                if let Ok(mut lines) = read_lines(fpath) {                    
+                    match lines.next().unwrap().unwrap().as_str() {
+                        "RB_Tree" | "AVL_Tree" => {
+                            tree = parse_avl_tree(tree.clone(), lines);
+                        }
+                        _ => {
+                            println!("Coud not parse 2nd tree");
+                        }                        
+                    }
+                }
+                
+            } 
+            return tree;
+}
 fn main() {
 
     let mut input = String::new();
-    println!("Welcome to the very professional and hyper efficient Red-Black & AVL Tree builder, now in Rust™!");
+    println!("Welcome to Arborium, the very professional and hyper-efficient Red-Black & AVL Tree builder, now in Rust™!");
     println!("Valid input is shown in parentheses.");
     println!("Would you like to");
     println!("(l)oad a tree?");
-    println!("(c)reate a new tree?");
+    println!("(c)ombine two trees? (Type of first tree will be used for output tree)");
+    println!("Create a (n)ew tree?");
     println!("or (q)uit?");
     
     io::stdout().flush().expect("Cannot flush stdout");
@@ -47,12 +92,12 @@ fn main() {
                 if let Ok(mut lines) = read_lines(fpath) {
                     match lines.next().unwrap().unwrap().as_str() {
                         "RB_Tree" => {
-                            let rb = parse_rb_tree(lines);
+                            let rb = parse_rb_tree(None, lines);
                             RB_Tree::print_tree(&rb, 0);
                             rb_interface(rb)
                         }
                         "AVL_Tree" => {
-                            let avl = parse_avl_tree(lines);
+                            let avl = parse_avl_tree(None, lines);
                             AVL_Tree::print_tree(&avl, 0);
                             avl_interface(avl)
                         }
@@ -68,7 +113,39 @@ fn main() {
                 println!("No file selected. Have a great one!")
             }
             },
-        "c" =>{
+        "c" => {
+            
+            println!("Loading a tree");
+            let file = FileDialog::new()
+    .add_filter("text", &["txt"])
+    .set_directory("/")
+    .pick_file();
+// println!("{:?}",file)
+            if let Some(fpath) = file {
+                // load the file
+                if let Ok(mut lines) = read_lines(fpath) {
+                    match lines.next().unwrap().unwrap().as_str() {
+                        "RB_Tree" => {
+                            let mut rb = parse_rb_tree(None, lines);
+                            rb = combine_rb_tree(rb);
+                            RB_Tree::print_tree(&rb, 0);
+                            rb_interface(rb)
+                        }
+                        "AVL_Tree" => {
+                            let mut avl = parse_avl_tree(None, lines);
+                            avl = combine_avl_tree(avl);
+                            AVL_Tree::print_tree(&avl, 0);
+                            avl_interface(avl)
+                        }
+                        _ => {}
+                    }
+                }
+                
+            } else {
+                println!("No file selected. Have a great one!")
+            }
+        }
+        "n" =>{
             println!("Would you like to create a Red-Black tree (rb) or an AVL tree(avl)?");
             input = "".to_string();
             io::stdin()
@@ -118,27 +195,55 @@ fn list_commands(){
     println!("(i)nsert a new node: i 42"); 
     println!("(d)elete a node: d 42"); 
     println!("(c)ount the number of leaves");
-    println!("Display the (h)eight of the tree");
+    println!("Display the (h)eight of the tree"); // TODO
     println!("Display the in-order (t)raversal of the tree");
     println!("Check if the tree is (e)mpty"); 
     println!("(p)rint the tree");
     println!("(s)ave the tree"); // todo
 }
 
-fn get_input_data(cmd:String) -> Result<u32, ()>{
+// fn get_input_data(cmd:String) -> Result<u32, String>{
+//     let elems = cmd.split(" ").collect::<Vec<&str>>();
+//     println!("i l {}",elems.len());
+//     if elems.len() != 2 {
+//         return Err(format!("Invalid number of inputs. Expected 2, got {}", elems.len())); 
+
+//     }
+//     if let Ok(data) = elems[1].trim().parse::<u32>() {
+//         return Ok(data);
+//     } else {
+//         return Err(("Invalid numeric input. Please try again.").to_string());
+
+//     }
+    
+// }
+// 'i' => {
+//     match get_input_data(cmd){
+//         Ok(data) => {AVL_Tree::insert(&tree, data);}
+//         Err(msg) => {println!("{}",msg);}
+//     } 
+// }
+// 'd' => {
+//     match get_input_data(cmd){
+//         Ok(data) => {AVL_Tree::delete(tree.clone(), data);}
+//         Err(msg) => {println!("{}",msg);}
+//     } 
+// }
+#[allow(unused_assignments)]
+fn get_input_data(cmd:String) -> Result<u32, String>{
     let elems = cmd.split(" ").collect::<Vec<&str>>();
-            
+    let mut errmsg;    
     if elems.len() != 2 {
-        println!("Invalid number of inputs. Expected 2, got {}", elems.len()); 
+        errmsg = format!("Invalid number of inputs. Expected 2, got {}", elems.len()); 
 
     }
     if let Ok(data) = elems[1].trim().parse::<u32>() {
         return Ok(data);
     } else {
-        println!("Invalid numeric input. Please try again.");
+        errmsg = "Invalid numeric input. Please try again.".to_string();
 
     }
-    return Err(())
+    return Err(errmsg)
 }
 fn rb_interface(mut tree:Option<Tree>){
     loop {
@@ -148,15 +253,16 @@ fn rb_interface(mut tree:Option<Tree>){
     match cmd.trim().chars().next().unwrap(){
         'p' => {RB_Tree::print_tree(&tree,0)},
         'i' => {
-            if let Ok(data) = get_input_data(cmd){
-                tree = RB_Tree::insert(&tree, data)
-            }
-            
+            match  get_input_data(cmd) {
+                Ok(data) => {tree = RB_Tree::insert(&tree, data);}
+                Err(msg) => {println!("{}",msg)}
+            }            
         }
         'd' => {
-            if let Ok(data) = get_input_data(cmd){
-                tree = RB_Tree::delete(tree, data)
-            } 
+            match  get_input_data(cmd) {
+                Ok(data) => {tree = RB_Tree::delete(tree, data);}
+                Err(msg) => {println!("{}",msg)}
+            }
         }
         'q' => {
             println!("Hope you've enjoyed your arbory experience, goodbye 👋");
@@ -216,15 +322,16 @@ fn avl_interface(mut tree: AVLTree){
     match cmd.trim().chars().next().unwrap(){
         'p' => {AVL_Tree::print_tree(&tree,0)},
         'i' => {
-            if let Ok(data) = get_input_data(cmd){
-                tree = AVL_Tree::insert(&tree, data)
-            }
-            
+            match  get_input_data(cmd) {
+                Ok(data) => {tree = AVL_Tree::insert(&tree, data);}
+                Err(msg) => {println!("{}",msg)}
+            }            
         }
         'd' => {
-            if let Ok(data) = get_input_data(cmd){
-                tree = AVL_Tree::delete(tree, data)
-            } 
+            match  get_input_data(cmd) {
+                Ok(data) => {tree = AVL_Tree::delete(tree, data);}
+                Err(msg) => {println!("{}",msg)}
+            }
         }
         'q' => {
             println!("Hope you've enjoyed your arbory experience, goodbye 👋");
@@ -278,8 +385,7 @@ fn avl_interface(mut tree: AVLTree){
 }
 
 // TODO error handling
-fn parse_rb_tree(lines:Lines<BufReader<File>>) -> RedBlackTree {
-    let mut rb= None;
+fn parse_rb_tree(mut rb: RedBlackTree, lines:Lines<BufReader<File>>) -> RedBlackTree {
     for line in lines {
         rb = RB_Tree::insert(&rb, line.unwrap().parse().unwrap());
     }
@@ -287,8 +393,7 @@ fn parse_rb_tree(lines:Lines<BufReader<File>>) -> RedBlackTree {
     
 }
 
-fn parse_avl_tree(lines:Lines<BufReader<File>>) -> AVLTree{
-    let mut avl = None;
+fn parse_avl_tree(mut avl: AVLTree, lines:Lines<BufReader<File>>) -> AVLTree{
     for line in lines {
         avl = AVL_Tree::insert(&avl, line.unwrap().parse().unwrap());
     }

@@ -250,7 +250,7 @@ pub fn delete_balance(replacement: RedBlackTree, org_color: NodeColor, parent: R
             || org_color == NodeColor::Red
             || r_node.borrow().parent.is_none()
         {
-            println!("simple case");
+            // println!("simple case");
             r_node.borrow_mut().color = NodeColor::Black;
             return None;
         }
@@ -258,7 +258,7 @@ pub fn delete_balance(replacement: RedBlackTree, org_color: NodeColor, parent: R
     //simple recolor case
     else {
         if org_color == NodeColor::Red {
-            println!("simple case None replacement");
+            // println!("simple case None replacement");
             return None;
         }
     }
@@ -276,12 +276,12 @@ pub fn delete_balance(replacement: RedBlackTree, org_color: NodeColor, parent: R
                 //recur for parent
                 if let Some(p_node) = parent.clone(){
                     if p_node.clone().borrow().color == NodeColor::Red{
-                        println!("red parent");
+                        // println!("red parent");
                         p_node.clone().borrow_mut().color = NodeColor::Black;
                         s_node.clone().borrow_mut().color = NodeColor::Red;
                         return None;
                     }else{
-                        println!("recursive case");
+                        // println!("recursive case");
                         s_node.clone().borrow_mut().color = NodeColor::Red;
                         let (new_s, new_s_direction) = get_sibling(parent.clone());
                         let new_parent = p_node.clone().borrow().parent.clone();
@@ -292,7 +292,7 @@ pub fn delete_balance(replacement: RedBlackTree, org_color: NodeColor, parent: R
                 match sibling_direction {
                     Direction::Left => {
                         if s_left_color == NodeColor::Red {
-                            println!("left left case");
+                            // println!("left left case");
                             //left left case
                             let mut p_color = NodeColor::Black;
                             if let Some(p_node) = parent.clone(){
@@ -305,7 +305,7 @@ pub fn delete_balance(replacement: RedBlackTree, org_color: NodeColor, parent: R
                             s_node.clone().borrow_mut().color = p_color;
                             return right_rotate(&parent);
                         } else if s_right_color == NodeColor::Red {
-                            println!("left right case");
+                            // println!("left right case");
                             //left right case
                             let mut p_color = NodeColor::Black;
                             if let Some(p_node) = parent.clone(){
@@ -322,7 +322,7 @@ pub fn delete_balance(replacement: RedBlackTree, org_color: NodeColor, parent: R
                     }
                     Direction::Right => {
                         if s_right_color == NodeColor::Red {
-                            println!("right right case");
+                            // println!("right right case");
                             //right right case
                             let mut p_color = NodeColor::Black;
                             if let Some(p_node) = parent.clone(){
@@ -335,7 +335,7 @@ pub fn delete_balance(replacement: RedBlackTree, org_color: NodeColor, parent: R
                             s_node.clone().borrow_mut().color = p_color;
                             return left_rotate(&parent);
                         } else if s_left_color == NodeColor::Red {
-                            println!("right left case");
+                            // println!("right left case");
                             //right left case
                             let mut p_color = NodeColor::Black;
                             if let Some(p_node) = parent.clone(){
@@ -356,7 +356,7 @@ pub fn delete_balance(replacement: RedBlackTree, org_color: NodeColor, parent: R
         } else if s_node.borrow().color == NodeColor::Red {
             match sibling_direction{
                 Direction::Left=>{
-                    println!("red sibling left case");
+                    // println!("red sibling left case");
                     //left case if sibling is red
                     let mut new_sibling = None;
                     if let Some(p_node) = parent.clone(){
@@ -375,7 +375,7 @@ pub fn delete_balance(replacement: RedBlackTree, org_color: NodeColor, parent: R
                     }
                 }
                 Direction::Right=>{
-                    println!("red sibling right case");
+                    // println!("red sibling right case");
                     //right case if sibling is red
                     let mut new_sibling = None;
                     if let Some(p_node) = parent.clone(){
@@ -398,7 +398,7 @@ pub fn delete_balance(replacement: RedBlackTree, org_color: NodeColor, parent: R
         }
     } else {
         //recur for parent
-        println!("recursive no other nodes");
+        // println!("recursive no other nodes");
         if let Some(p_node) = parent.clone(){
             if p_node.clone().borrow().color == NodeColor::Red{
                 p_node.clone().borrow_mut().color = NodeColor::Black;
