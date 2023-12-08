@@ -1,7 +1,7 @@
-extern crate RB_Tree;
-extern crate AVL_Tree;
-use AVL_Tree::AVLTree;
-use  RB_Tree::*;
+extern crate rb_tree;
+extern crate avl_tree;
+use avl_tree::*;
+use rb_tree::*;
 
 use rfd::FileDialog;
 use std::fs::File;
@@ -65,7 +65,7 @@ fn combine_avl_tree(mut tree: AVLTree) -> AVLTree{
 fn main() {
 
     let mut input = String::new();
-    println!("Welcome to Arborium, the very professional and hyper-efficient Red-Black & AVL Tree builder, now in Rust™!");
+    println!("Welcome to Arborium, the very professional and hyper-efficient Red-Black & AVL Tree builder 🌳, now in Rust™!");
     println!("Valid input is shown in parentheses.");
     println!("Would you like to");
     println!("(l)oad a tree?");
@@ -92,13 +92,13 @@ fn main() {
                 if let Ok(mut lines) = read_lines(fpath) {
                     match lines.next().unwrap().unwrap().as_str() {
                         "RB_Tree" => {
-                            let rb = parse_rb_tree(None, lines);
-                            RB_Tree::print_tree(&rb, 0);
+                            let rb:RedBlackTree = parse_rb_tree(None, lines);
+                            rb_tree::print_tree(&rb, 0);
                             rb_interface(rb)
                         }
                         "AVL_Tree" => {
                             let avl = parse_avl_tree(None, lines);
-                            AVL_Tree::print_tree(&avl, 0);
+                            avl_tree::print_tree(&avl, 0);
                             avl_interface(avl)
                         }
                         _ => {}
@@ -128,13 +128,13 @@ fn main() {
                         "RB_Tree" => {
                             let mut rb = parse_rb_tree(None, lines);
                             rb = combine_rb_tree(rb);
-                            RB_Tree::print_tree(&rb, 0);
+                            rb_tree::print_tree(&rb, 0);
                             rb_interface(rb)
                         }
                         "AVL_Tree" => {
                             let mut avl = parse_avl_tree(None, lines);
                             avl = combine_avl_tree(avl);
-                            AVL_Tree::print_tree(&avl, 0);
+                            avl_tree::print_tree(&avl, 0);
                             avl_interface(avl)
                         }
                         _ => {}
@@ -168,8 +168,8 @@ fn main() {
         _ => println!("Invalid input, see above and try again.")
     }
     // println!("Hello, world!");
-    // let rb_tree = RB_Tree::new_rb_tree(4);
-    // RB_Tree::print_tree(&rb_tree,0)
+    // let rb_tree = rb_tree::new_rb_tree(4);
+    // rb_tree::print_tree(&rb_tree,0)
 }
 
 fn parse_input() -> String{
@@ -195,11 +195,12 @@ fn list_commands(){
     println!("(i)nsert a new node: i 42"); 
     println!("(d)elete a node: d 42"); 
     println!("(c)ount the number of leaves");
-    println!("Display the (h)eight of the tree"); // TODO
+    println!("Display the (h)eight of the tree"); 
     println!("Display the in-order (t)raversal of the tree");
     println!("Check if the tree is (e)mpty"); 
     println!("(p)rint the tree");
-    println!("(s)ave the tree"); // todo
+    println!("(s)ave the tree");
+    println!("(q)uit Arborium");
 }
 
 // fn get_input_data(cmd:String) -> Result<u32, String>{
@@ -219,13 +220,13 @@ fn list_commands(){
 // }
 // 'i' => {
 //     match get_input_data(cmd){
-//         Ok(data) => {AVL_Tree::insert(&tree, data);}
+//         Ok(data) => {avl_tree::insert(&tree, data);}
 //         Err(msg) => {println!("{}",msg);}
 //     } 
 // }
 // 'd' => {
 //     match get_input_data(cmd){
-//         Ok(data) => {AVL_Tree::delete(tree.clone(), data);}
+//         Ok(data) => {avl_tree::delete(tree.clone(), data);}
 //         Err(msg) => {println!("{}",msg);}
 //     } 
 // }
@@ -235,7 +236,7 @@ fn get_input_data(cmd:String) -> Result<u32, String>{
     let mut errmsg;    
     if elems.len() != 2 {
         errmsg = format!("Invalid number of inputs. Expected 2, got {}", elems.len()); 
-
+        // TODO make this actually fail
     }
     if let Ok(data) = elems[1].trim().parse::<u32>() {
         return Ok(data);
@@ -245,22 +246,22 @@ fn get_input_data(cmd:String) -> Result<u32, String>{
     }
     return Err(errmsg)
 }
-fn rb_interface(mut tree:Option<Tree>){
+fn rb_interface(mut tree:RedBlackTree){
     loop {
     println!("Please enter a command [(o) for a list of options]");
     let cmd = parse_input();
 
     match cmd.trim().chars().next().unwrap(){
-        'p' => {RB_Tree::print_tree(&tree,0)},
+        'p' => {rb_tree::print_tree(&tree,0)},
         'i' => {
             match  get_input_data(cmd) {
-                Ok(data) => {tree = RB_Tree::insert(&tree, data);}
+                Ok(data) => {tree = rb_tree::insert(&tree, data);}
                 Err(msg) => {println!("{}",msg)}
             }            
         }
         'd' => {
             match  get_input_data(cmd) {
-                Ok(data) => {tree = RB_Tree::delete(tree, data);}
+                Ok(data) => {tree = rb_tree::delete(tree, data);}
                 Err(msg) => {println!("{}",msg)}
             }
         }
@@ -269,15 +270,18 @@ fn rb_interface(mut tree:Option<Tree>){
             break
         }
         'h' => {
-            println!("Tree height: {}", RB_Tree::tree_height(&tree))
+            println!("Tree height: {}", rb_tree::tree_height(&tree))
+        }
+        'c' => {
+            println!("Number of leaves: {}", rb_tree::count_leaves(&tree))
         }
         't' => {
             let mut keys: Vec<u32> = Vec::new();
-            RB_Tree::in_order_traversal(&tree, &mut keys);
+            rb_tree::in_order_traversal(&tree, &mut keys);
             println!("{:?}",keys);
         }
         'e' => {
-            match RB_Tree::check_if_empty(&tree) {
+            match rb_tree::check_if_empty(&tree) {
                 Ok(()) => {println!("Tree is not empty")}
                 Err(()) => {println!("Tree is empty")}
             }
@@ -297,15 +301,20 @@ fn rb_interface(mut tree:Option<Tree>){
                 let mut f = File::create(file).unwrap();
                 let _ = f.write(b"RB_Tree\r\n");
                 let mut keys: Vec<u32> = Vec::new();
-                RB_Tree::in_order_traversal(&tree, &mut keys);
+                rb_tree::in_order_traversal(&tree, &mut keys);
                 for k in keys {
                     let val = k.to_string() + "\r\n";
                     let _ = f.write(val.as_bytes());
                 }
                 f.flush().unwrap();
-                
+                println!("Tree saved!");
+            } else {
+                println!("No file selected, aborting.")
             }
-            println!("Tree saved!");
+            
+        }
+        'o' => {
+            list_commands();
         }
         _ => {
             println!("Invalid command");
@@ -320,16 +329,16 @@ fn avl_interface(mut tree: AVLTree){
     let cmd = parse_input();
 
     match cmd.trim().chars().next().unwrap(){
-        'p' => {AVL_Tree::print_tree(&tree,0)},
+        'p' => {avl_tree::print_tree(&tree,0)},
         'i' => {
             match  get_input_data(cmd) {
-                Ok(data) => {tree = AVL_Tree::insert(&tree, data);}
+                Ok(data) => {tree = avl_tree::insert(&tree, data);}
                 Err(msg) => {println!("{}",msg)}
             }            
         }
         'd' => {
             match  get_input_data(cmd) {
-                Ok(data) => {tree = AVL_Tree::delete(tree, data);}
+                Ok(data) => {tree = avl_tree::delete(tree, data);}
                 Err(msg) => {println!("{}",msg)}
             }
         }
@@ -338,15 +347,18 @@ fn avl_interface(mut tree: AVLTree){
             break
         }
         'h' => {
-            println!("Tree height: {}", AVL_Tree::tree_height(&tree))
+            println!("Tree height: {}", avl_tree::tree_height(&tree))
+        }
+        'c' => {
+            println!("Number of leaves: {}", avl_tree::count_leaves(&tree))
         }
         't' => {
             let mut keys: Vec<u32> = Vec::new();
-            AVL_Tree::in_order_traversal(&tree, &mut keys);
+            avl_tree::in_order_traversal(&tree, &mut keys);
             println!("{:?}",keys);
         }
         'e' => {
-            match  AVL_Tree::check_if_empty(&tree) {
+            match  avl_tree::check_if_empty(&tree) {
                 Ok(()) => {println!("Tree is not empty")}
                 Err(()) => {println!("Tree is empty")}
             }
@@ -366,15 +378,20 @@ fn avl_interface(mut tree: AVLTree){
                 let mut f = File::create(file).unwrap();
                 let _ = f.write(b"AVL_Tree\r\n");
                 let mut keys: Vec<u32> = Vec::new();
-                AVL_Tree::in_order_traversal(&tree, &mut keys);
+                avl_tree::in_order_traversal(&tree, &mut keys);
                 for k in keys {
                     let val = k.to_string() + "\r\n";
                     let _ = f.write(val.as_bytes());
                 }
                 f.flush().unwrap();
                 
+                println!("Tree saved!");
+            } else {
+                println!("No file selected, aborting.")
             }
-            println!("Tree saved!");
+        }
+        'o' => {
+            list_commands();
         }
         _ => {
             println!("Invalid command");
@@ -387,7 +404,7 @@ fn avl_interface(mut tree: AVLTree){
 // TODO error handling
 fn parse_rb_tree(mut rb: RedBlackTree, lines:Lines<BufReader<File>>) -> RedBlackTree {
     for line in lines {
-        rb = RB_Tree::insert(&rb, line.unwrap().parse().unwrap());
+        rb = rb_tree::insert(&rb, line.unwrap().parse().unwrap());
     }
     return rb
     
@@ -395,7 +412,7 @@ fn parse_rb_tree(mut rb: RedBlackTree, lines:Lines<BufReader<File>>) -> RedBlack
 
 fn parse_avl_tree(mut avl: AVLTree, lines:Lines<BufReader<File>>) -> AVLTree{
     for line in lines {
-        avl = AVL_Tree::insert(&avl, line.unwrap().parse().unwrap());
+        avl = avl_tree::insert(&avl, line.unwrap().parse().unwrap());
     }
     return avl
     

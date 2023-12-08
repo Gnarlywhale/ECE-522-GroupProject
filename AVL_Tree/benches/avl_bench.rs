@@ -1,12 +1,13 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use std::time::Duration;
-use AVL_Tree::*;
+use avl_tree::*;
 
 
 fn criterion_benchmark(c: &mut Criterion){
     let mut group = c.benchmark_group("AVL Benches");
     group.measurement_time(Duration::from_secs(5));
-    [10000, 40000, 70000, 100000, 130000u32].iter().for_each(|x| {
+    [100000, 130000u32].iter().for_each(|x| {
+    // [10000, 40000, 70000, 100000, 130000u32].iter().for_each(|x| {
         let mut avl = new_avl_tree(1);
         group.bench_function(&format!("{}: {}", "insert", x), |b| {
             b.iter(|| {

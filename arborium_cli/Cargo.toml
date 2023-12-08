@@ -1,11 +1,11 @@
 [package]
-name = "tree_cli"
+name = "arborium_cli"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-RB_Tree = {path = "../RB_Tree"}
-AVL_Tree = {path = "../AVL_Tree"}
+rb_tree = {path = "../rb_tree"}
+avl_tree = {path = "../avl_tree"}
 rfd = "*"

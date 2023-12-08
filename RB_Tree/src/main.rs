@@ -1,6 +1,6 @@
 mod tests;
 
-use RB_Tree::*;
+use rb_tree::*;
 // TO IMPLEMENT
 // 1- Insert a node to the red-black tree.
 // 2- Delete a node from the red-black tree.

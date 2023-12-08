@@ -10,9 +10,10 @@ mod tests;
 // 7- DONE: Print the tree showing its structure. (Using println!(“{:#?}”,tree); is NOT
 // sufficient).
 // 8- DONE: Rebalance the tree for insert and delete.
-
-use AVL_Tree::*;
+extern crate avl_tree;
+use avl_tree::*;
 fn main() {
+
     let mut avl_tree = new_avl_tree(12);
     // avl_tree = insert(&avl_tree, 15);
     // avl_tree = insert(&avl_tree, 13);
@@ -44,7 +45,7 @@ fn main() {
     avl_tree = insert(&avl_tree, 11);
     avl_tree = insert(&avl_tree, 10);
     avl_tree = insert(&avl_tree, 16);
-    avl_tree = insert(&avl_tree, 14);
+    _ = insert(&avl_tree, 14);
     // let leaf_count = count_leaves(&avl_tree);
     // let tree_height = tree_height(&avl_tree);
     // let node_1 = find_key(avl_tree.clone(), 6);

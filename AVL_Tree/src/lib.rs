@@ -1,4 +1,4 @@
-use binary_lib::*;
+// use binary_lib::*;
 use std::cell::RefCell;
 use std::rc::Rc;
 use colored::*;
@@ -6,7 +6,6 @@ use colored::*;
 // #[derive(Clone, Debug, PartialEq)]
 pub type Tree = Rc<RefCell<TreeNode<u32>>>;
 pub type AVLTree = Option<Tree>;
-
 #[derive(Debug)]
 pub struct TreeNode<T> {
     pub balance_factor: i32,
@@ -269,7 +268,7 @@ pub fn in_order_successor(avl_tree: AVLTree) -> AVLTree {
     None
 }
 
-pub fn delete(mut avl_tree: AVLTree, key: u32) -> AVLTree {
+pub fn delete(avl_tree: AVLTree, key: u32) -> AVLTree {
     let (new_tree, deleted_node_parent) = remove_node(avl_tree, key.clone());
     let balance_tree = rebalance_factor(&deleted_node_parent, key);
     if balance_tree.is_some() {
@@ -281,7 +280,7 @@ pub fn delete(mut avl_tree: AVLTree, key: u32) -> AVLTree {
 }
 
 //insert full tree
-pub fn remove_node(mut avl_tree: AVLTree, key: u32) -> (AVLTree, AVLTree) {
+pub fn remove_node(avl_tree: AVLTree, key: u32) -> (AVLTree, AVLTree) {
     let mut replacement_node_parent: Option<Rc<RefCell<TreeNode<u32>>>> = None;
     if let Some(node) = find_key(avl_tree.clone(), key) {
         let node_key = node.clone().borrow().key.clone();
